@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAMBA｜MQ-5 道幅を求める</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--sf:#fff;--sf2:#f0ede6;--bd:#d6d2c8;--bd2:#bcb8ae;--pink:#d93652;--teal:#0d9478;--blue:#2055b0;--amber:#a86000;--tl:#e6f5f1;--bl:#eaf0fb;--al:#fdf2dd;--pl:#fde8eb;--text:#1a1814;--text2:#58544c;--text3:#98948c;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+.site-header{background:var(--sf);border-bottom:1px solid var(--bd);padding:.65rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Shippori Mincho',serif;font-size:1.05rem;color:var(--pink);}
+.logo-sep{color:var(--bd2);}
+.logo-sub{font-size:12px;color:var(--text2);}
+.tab-nav{background:var(--sf);border-bottom:2px solid var(--bd);position:sticky;top:46px;z-index:99;display:flex;padding:0 1rem;overflow-x:auto;}
+.tab-btn{padding:.7rem 1.1rem;font-size:13px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif;display:flex;align-items:center;gap:6px;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active-ex{color:var(--pink);border-bottom-color:var(--pink);}
+.tab-btn.active-pr{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-btn.active-cf{color:var(--amber);border-bottom-color:var(--amber);}
+.tab-pip{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.pip-ex{background:#fde8eb;color:var(--pink);}
+.pip-pr{background:var(--bl);color:var(--blue);}
+.pip-cf{background:var(--al);color:var(--amber);}
+.tab-done{width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:9px;display:none;align-items:center;justify-content:center;}
+.page{display:none;animation:fadeTab .2s ease;}
+.page.active{display:block;}
+@keyframes fadeTab{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+main{max-width:720px;margin:0 auto;padding:1.5rem 1rem 6rem;}
+.page-hdr{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:1rem 1.4rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:12px;}
+.page-hdr-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;flex-shrink:0;}
+.icon-ex{background:var(--pink);color:#fff;}
+.icon-pr{background:var(--blue);color:#fff;}
+.icon-cf{background:var(--amber);color:#fff;}
+.page-hdr-body{flex:1;}
+.page-hdr-title{font-size:15px;font-weight:700;margin-bottom:2px;}
+.page-hdr-desc{font-size:12px;color:var(--text2);}
+.prog-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:.8rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:12px;}
+.pb-w{flex:1;height:6px;background:var(--bd);border-radius:3px;overflow:hidden;}
+.pb{height:100%;border-radius:3px;transition:width .4s;}
+.pb-pr{background:var(--blue);}
+.pb-cf{background:var(--amber);}
+.pb-txt{font-size:12px;color:var(--text2);white-space:nowrap;}
+.next-page-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .15s;margin-top:.5rem;}
+.next-page-btn.pr{border-color:var(--blue);color:var(--blue);background:var(--bl);}
+.next-page-btn.cf{border-color:var(--amber);color:var(--amber);background:var(--al);}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:1.4rem 1.5rem;margin-bottom:1rem;}
+.clabel{font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:6px;}
+.clabel::before{content:'';width:3px;height:14px;border-radius:2px;display:inline-block;}
+.clabel.ex{color:var(--pink);}.clabel.ex::before{background:var(--pink);}
+.clabel.pr{color:var(--blue);}.clabel.pr::before{background:var(--blue);}
+.clabel.cf{color:var(--amber);}.clabel.cf::before{background:var(--amber);}
+.clabel.kai{color:var(--teal);}.clabel.kai::before{background:var(--teal);}
+.q-text{font-size:15px;line-height:2;color:var(--text);margin-bottom:1rem;}
+.prob-src{display:inline-block;font-size:11px;color:var(--text3);background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px 10px;margin-bottom:.8rem;}
+.point-box{background:var(--al);border:1px solid #e0c888;border-radius:9px;padding:.9rem 1.2rem;margin-bottom:.9rem;font-size:13.5px;color:#6b4400;line-height:2;}
+.point-box .point-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:.5rem;}
+.point-box .point-title::before{content:'';width:3px;height:13px;background:var(--amber);border-radius:2px;display:inline-block;}
+.why-box{background:#f0f7ff;border:1px solid #b8d4f0;border-radius:9px;padding:.85rem 1.1rem;margin-bottom:.85rem;font-size:13px;color:#1a3a5c;line-height:1.9;}
+.why-box .why-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;margin-bottom:.4rem;}
+
+/* 移動アニメーション説明 */
+.move-steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:.6rem 0;}
+.move-step{background:var(--sf2);border:1.5px solid var(--bd);border-radius:8px;padding:.4rem .8rem;font-size:12px;text-align:center;}
+.move-arrow{font-size:18px;color:var(--teal);}
+
+/* SVG図解 */
+.fig-wrap{background:var(--sf2);border-radius:10px;padding:.8rem;margin:.8rem 0;text-align:center;}
+.fig-wrap svg{max-width:100%;height:auto;}
+.fig-cap{font-size:11px;color:var(--text3);margin-top:6px;text-align:center;}
+
+/* 式の変換ボックス */
+.eq-transform{background:var(--sf2);border-radius:9px;padding:.85rem 1.1rem;margin:.7rem 0;font-size:14px;line-height:2.2;font-family:'DM Mono',monospace;color:var(--text);}
+.eq-transform .step-label{font-family:'Noto Sans JP',sans-serif;font-size:10px;color:var(--text3);margin-right:6px;}
+.eq-transform .hl{color:var(--teal);font-weight:700;}
+.eq-transform .hla{color:var(--amber);font-weight:700;}
+
+.exp-box{background:var(--sf2);border-radius:9px;padding:.9rem 1.15rem;margin-bottom:.75rem;border-left:3px solid var(--teal);animation:fadeIn .25s ease;}
+.exp-box h4{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.06em;margin-bottom:.5rem;}
+.exp-box p{font-size:14px;line-height:2;color:var(--text);white-space:pre-wrap;}
+.exp-box.blue{border-color:var(--blue);}.exp-box.blue h4{color:var(--blue);}
+.exp-box.amber{border-color:var(--amber);}.exp-box.amber h4{color:var(--amber);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.reveal-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:.2rem;transition:background .15s;}
+.reveal-btn:hover{background:#0b7560;}
+.kai-card{display:none;border-top:3px solid var(--teal);}
+.connector{display:none;flex-direction:column;align-items:center;margin:-.5rem 0;position:relative;z-index:2;}
+.connector-line{width:2px;height:20px;background:var(--teal);}
+.connector-arrow{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid var(--teal);}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:1rem;}
+.ch{background:var(--sf2);border:1.5px solid var(--bd);border-radius:9px;padding:10px 8px;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:'Noto Sans JP',sans-serif;width:100%;}
+.ch:hover:not(:disabled){border-color:var(--blue);background:var(--bl);}
+.ch:disabled{cursor:default;}
+.ch.ok{border-color:var(--teal);background:var(--tl);color:var(--teal);}
+.ch.ng{border-color:var(--pink);background:var(--pl);color:var(--pink);}
+.ch.selected{border-color:var(--blue);background:var(--bl);color:var(--blue);}
+.cnum{width:24px;height:24px;border-radius:50%;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.ch.ok .cnum{background:var(--teal);color:#fff;}
+.ch.ng .cnum{background:var(--pink);color:#fff;}
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.timer-ring{position:relative;width:48px;height:48px;flex-shrink:0;}
+.timer-ring svg{width:48px;height:48px;transform:rotate(-90deg);}
+circle{fill:none;stroke-width:3;stroke-linecap:round;}
+.tbg{stroke:var(--bd2);}
+.tfg{stroke:var(--teal);transition:stroke-dashoffset .9s linear;stroke-dasharray:126;stroke-dashoffset:0;}
+.tfg.warn{stroke:var(--amber);}
+.tcenter{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);font-family:'DM Mono',monospace;}
+.timer-msg{font-size:13px;color:var(--text2);line-height:1.5;}
+.timer-msg .goal{color:var(--teal);font-weight:500;}
+.hint-toggle{background:none;border:1px dashed var(--bd);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:.75rem;font-family:'Noto Sans JP',sans-serif;transition:all .15s;}
+.hint-toggle:hover{border-color:var(--blue);color:var(--blue);}
+.hint-box{background:var(--bl);border:1px solid #a8c0e8;border-radius:9px;padding:.75rem 1rem;margin-bottom:.85rem;font-size:13px;color:var(--blue);line-height:1.9;display:none;}
+.abc-wrap{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--bd);}
+.abc-lbl{font-size:12px;color:var(--text2);margin-bottom:.7rem;}
+.abc-row{display:flex;gap:7px;}
+.abc-btn{flex:1;padding:9px 5px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid;transition:all .15s;font-family:'Noto Sans JP',sans-serif;text-align:center;line-height:1.3;}
+.abc-btn span{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.85;}
+.abc-A{border-color:var(--teal);color:var(--teal);background:var(--tl);}
+.abc-A:hover,.abc-A.on{background:var(--teal);color:#fff;}
+.abc-B{border-color:var(--blue);color:var(--blue);background:var(--bl);}
+.abc-B:hover,.abc-B.on{background:var(--blue);color:#fff;}
+.abc-C{border-color:var(--amber);color:var(--amber);background:var(--al);}
+.abc-C:hover,.abc-C.on{background:var(--amber);color:#fff;}
+.prob-n{display:inline-flex;align-items:center;gap:8px;margin-bottom:.9rem;}
+.prob-n .n{width:28px;height:28px;border-radius:6px;font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.n-pr{background:var(--blue);color:#fff;}
+.n-cf{background:var(--amber);color:#fff;}
+.prob-n span{font-size:12px;color:var(--text3);}
+.prob-divider{border:none;border-top:1px dashed var(--bd);margin:1.8rem 0 1.5rem;}
+.cf-judge-btn{width:100%;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;transition:background .15s;display:none;}
+.cf-judge-btn:hover{background:#8a5000;}
+.cf-judge-btn.active{display:block;}
+.cf-result-ok{background:var(--tl);border:2px solid var(--teal);border-radius:10px;padding:1.2rem;text-align:center;font-size:20px;font-weight:900;color:var(--teal);margin-bottom:1rem;display:none;animation:popIn .4s ease;}
+.cf-result-ng{background:var(--pl);border:2px solid var(--pink);border-radius:10px;padding:1rem;text-align:center;font-size:18px;font-weight:900;color:var(--pink);margin-bottom:1rem;display:none;animation:popIn .4s ease;}
+@keyframes popIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.fb-ok{display:none;align-items:center;gap:12px;background:#e6faf3;border:2px solid #0d9478;border-radius:12px;padding:12px 16px;margin:8px 0 4px;animation:fbPop .3s ease;}
+.fb-ng{display:none;align-items:center;gap:12px;background:#fde8eb;border:2px solid #d93652;border-radius:12px;padding:12px 16px;margin:8px 0 4px;animation:fbPop .3s ease;}
+@keyframes fbPop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.reset-btn{background:none;border:1.5px solid #d93652;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:#d93652;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-left:auto;flex-shrink:0;transition:all .15s;white-space:nowrap;}
+.reset-btn:hover{background:#d93652;color:#fff;}
+.fb-icon{font-size:1.7rem;flex-shrink:0;}
+.fb-text{font-size:13px;font-weight:700;line-height:1.5;}
+.fb-ok .fb-text{color:#0d9478;}
+.fb-ng .fb-text{color:#d93652;}
+.fb-sub{font-size:11px;font-weight:400;display:block;margin-top:1px;opacity:.8;}
+.unit-nav{display:none;flex-direction:column;gap:10px;margin:1.8rem 0 0;padding-top:1.4rem;border-top:2px dashed #d6d2c8;}
+.unit-nav-row{display:flex;gap:8px;flex-wrap:wrap;}
+.unav-btn{flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;border:2px solid;font-family:'Noto Sans JP',sans-serif;transition:all .15s;text-align:center;}
+.unav-index{background:#fff;border-color:#d6d2c8;color:#58544c;}
+.unav-index:hover{border-color:#7d3eb0;color:#7d3eb0;background:#f1e8f7;}
+.unav-prev{background:var(--sf2);border-color:var(--bd2);color:var(--text2);}
+.unav-prev:hover{border-color:var(--teal);color:var(--teal);}
+.unav-next{background:#7d3eb0;border-color:#7d3eb0;color:#fff;}
+.unav-next:hover{background:#5a2a80;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <span class="logo">GAMBA</span><span class="logo-sep">|</span>
+  <span class="logo-sub">中3 二次方程式の文章題 ／ MQ-5　道幅を求める</span>
+</header>
+<nav class="tab-nav">
+  <button class="tab-btn active-ex" id="tab-ex" onclick="switchTab('ex')"><span class="tab-pip pip-ex">例</span>例題</button>
+  <button class="tab-btn" id="tab-pr" onclick="switchTab('pr')"><span class="tab-pip pip-pr">演</span>演習問題<span class="tab-done" id="done-pr">✓</span></button>
+  <button class="tab-btn" id="tab-cf" onclick="switchTab('cf')"><span class="tab-pip pip-cf">確</span>確認問題<span class="tab-done" id="done-cf">✓</span></button>
+</nav>
+<main>
+
+<!-- ════════════════ 例題 ════════════════ -->
+<div class="page active" id="page-ex">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-ex">例</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">例題 ─ 道幅を求める（縦横に道がある場合）</div>
+      <div class="page-hdr-desc">二次方程式の文章題 ／ 中学3年</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel ex">例題</div>
+    <div class="q-text">
+      図のような <strong>縦16m，横12m</strong> の長方形の土地に，<strong>χmの幅の道</strong>を縦横につくり花壇をつくりたい。<strong>花壇の面積の総和が140m²</strong>のとき，道幅は何mにすればよいか。
+    </div>
+
+    <div class="why-box">
+      <div class="why-title">💡 この問題のポイント ─ 道を「端に移動」する発想</div>
+      道が十字になっていると面積を求めるのが難しいです。<br>
+      そこで <strong>道を端に平行移動</strong> してまとめると，<br>
+      花壇全体が1つの大きな長方形になります！<br>
+      縦の道を右端へ，横の道を下端へ移動させると…<br>
+      花壇の縦 ＝ <strong>16－χ</strong>，花壇の横 ＝ <strong>12－χ</strong>
+    </div>
+
+    <!-- 平行移動の図解 -->
+    <div class="fig-wrap">
+      <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg">
+        <!-- 左図：もとの土地 -->
+        <rect x="10" y="20" width="200" height="160" fill="#e6f5f1" stroke="#0d9478" stroke-width="2"/>
+        <!-- 横の道 -->
+        <rect x="10" y="95" width="200" height="18" fill="#bcb8ae" opacity=".7"/>
+        <!-- 縦の道 -->
+        <rect x="115" y="20" width="18" height="160" fill="#bcb8ae" opacity=".7"/>
+        <!-- 花壇4つ -->
+        <rect x="12" y="22" width="101" height="71" fill="#c5e8de"/>
+        <rect x="135" y="22" width="73" height="71" fill="#c5e8de"/>
+        <rect x="12" y="115" width="101" height="63" fill="#c5e8de"/>
+        <rect x="135" y="115" width="73" height="63" fill="#c5e8de"/>
+        <!-- 寸法 -->
+        <text x="110" y="14" text-anchor="middle" font-size="12" fill="#1a1814" font-family="sans-serif" font-weight="700">16m</text>
+        <text x="4" y="105" text-anchor="middle" font-size="11" fill="#1a1814" font-family="sans-serif" transform="rotate(-90,4,105)">12m</text>
+        <text x="124" y="107" text-anchor="middle" font-size="10" fill="#58544c" font-weight="700" font-family="sans-serif">χ</text>
+        <text x="110" y="65" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+
+        <!-- 矢印 -->
+        <text x="248" y="108" font-size="28" fill="#a86000" font-weight="700" font-family="sans-serif">⇒</text>
+        <text x="236" y="125" font-size="10" fill="#a86000" font-family="sans-serif">道を移動</text>
+
+        <!-- 右図：移動後 -->
+        <rect x="305" y="20" width="240" height="160" fill="#fdf2dd" stroke="#a86000" stroke-width="2"/>
+        <!-- 花壇（大きな1つの長方形） -->
+        <rect x="307" y="22" width="218" height="128" fill="#e6f5f1" stroke="#0d9478" stroke-width="1.5" stroke-dasharray="4"/>
+        <!-- 道（右と下に集約） -->
+        <rect x="527" y="22" width="16" height="158" fill="#bcb8ae" opacity=".7"/>
+        <rect x="307" y="152" width="238" height="16" fill="#bcb8ae" opacity=".7"/>
+        <!-- 寸法ラベル -->
+        <text x="416" y="14" text-anchor="middle" font-size="12" fill="#1a1814" font-family="sans-serif" font-weight="700">16m</text>
+        <text x="299" y="100" text-anchor="middle" font-size="11" fill="#1a1814" font-family="sans-serif" transform="rotate(-90,299,100)">12m</text>
+        <!-- 花壇の寸法 -->
+        <text x="416" y="92" text-anchor="middle" font-size="12" fill="#0d9478" font-weight="700" font-family="sans-serif">16－χ</text>
+        <text x="416" y="108" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">12－χ</text>
+        <text x="535" y="108" text-anchor="middle" font-size="10" fill="#a86000" font-weight="700" font-family="sans-serif">χ</text>
+        <text x="416" y="166" text-anchor="middle" font-size="10" fill="#a86000" font-weight="700" font-family="sans-serif">χ</text>
+        <text x="416" y="200" text-anchor="middle" font-size="11" fill="#a86000" font-family="sans-serif">花壇の面積＝(16－χ)(12－χ)</text>
+      </svg>
+      <div class="fig-cap">道を端に平行移動すると，花壇が1つの長方形にまとまる！</div>
+    </div>
+
+    <div class="point-box">
+      <div class="point-title">方程式の作り方</div>
+      花壇の面積 ＝ <strong>（16－χ）×（12－χ）＝ 140</strong><br>
+      解いたあと，<strong>0＜χ＜12</strong>（短い辺より道幅は小さい）を確認！
+    </div>
+
+    <div id="q0-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　方程式を立てる</h4>
+      <p>道を端に移動すると，花壇全体は
+縦（16－χ）m，横（12－χ）m の長方形。
+
+<strong>（16－χ）（12－χ）＝ 140</strong></p>
+    </div>
+    <div id="q0-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　展開して整理する</h4>
+      <p>192 － 28χ ＋ χ² ＝ 140
+χ² － 28χ ＋ 192 － 140 ＝ 0
+<strong>χ² － 28χ ＋ 52 ＝ 0</strong></p>
+    </div>
+    <div id="q0-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－26）（χ－2）＝ 0
+χ ＝ 26　または　χ ＝ 2</p>
+    </div>
+    <div id="q0-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　条件確認と答え</h4>
+      <p>横が12mなので　<strong>0＜χ＜12</strong>
+χ＝26 は不適（12mより大きい）
+
+<strong>答え：χ＝2（m）</strong>
+
+【確かめ】（16－2）×（12－2）＝14×10＝140　✓</p>
+    </div>
+    <button class="reveal-btn" id="rb-q0" onclick="reveal('q0',4)">STEP 1 を見る ▼</button>
+    <div id="q0-fin" style="display:none">
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q0-kA" onclick="setMark('q0k','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q0-kB" onclick="setMark('q0k','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q0-kC" onclick="setMark('q0k','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+      <button class="next-page-btn pr" onclick="switchTab('pr')" style="margin-top:1.4rem;">演習問題へ進む →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ 演習 ════════════════ -->
+<div class="page" id="page-pr">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-pr">演</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">演習問題</div>
+      <div class="page-hdr-desc">道を端に移動させて（縦－χ）（横－χ）の式を作ろう。</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="pb-w"><div class="pb pb-pr" id="pb-pr" style="width:0%"></div></div>
+    <div class="pb-txt" id="pb-pr-txt">0 / 3 完了</div>
+  </div>
+
+  <!-- ── 演習1 ── -->
+  <div class="prob-n"><span class="n n-pr">1</span><span>演習 第1問</span></div>
+  <div class="card" id="q1-card">
+    <div class="clabel pr">演習 第1問</div>
+    <div class="q-text">
+      図のような長方形の土地（縦 <strong>23m</strong>，横 <strong>48m</strong>）に χm の幅の道をつくった。<strong>道以外の部分の面積は 900m²</strong> という。道幅を求めよ。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 例題と同じ手順</div>
+      道を端に移動すると…<br>
+      花壇の縦 ＝ <strong>23－χ</strong>，花壇の横 ＝ <strong>48－χ</strong><br>
+      <strong>（23－χ）（48－χ）＝ 900</strong>
+    </div>
+    <!-- 図解 -->
+    <div class="fig-wrap">
+      <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="15" y="15" width="290" height="130" fill="#e6f5f1" stroke="#0d9478" stroke-width="2"/>
+        <rect x="15" y="70" width="290" height="16" fill="#bcb8ae" opacity=".6"/>
+        <rect x="170" y="15" width="16" height="130" fill="#bcb8ae" opacity=".6"/>
+        <rect x="17" y="17" width="151" height="51" fill="#c5e8de"/>
+        <rect x="188" y="17" width="115" height="51" fill="#c5e8de"/>
+        <rect x="17" y="88" width="151" height="55" fill="#c5e8de"/>
+        <rect x="188" y="88" width="115" height="55" fill="#c5e8de"/>
+        <text x="160" y="9" text-anchor="middle" font-size="12" fill="#1a1814" font-family="sans-serif" font-weight="700">48m</text>
+        <text x="7" y="82" text-anchor="middle" font-size="11" fill="#1a1814" font-family="sans-serif" transform="rotate(-90,7,82)">23m</text>
+        <text x="178" y="81" text-anchor="middle" font-size="10" fill="#58544c" font-weight="700" font-family="sans-serif">χ</text>
+        <text x="90" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="245" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="90" y="120" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="245" y="120" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+      </svg>
+      <div style="font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;">→ (23－χ)(48－χ) ＝ 900</div>
+    </div>
+    <button class="hint-toggle" onclick="toggleHint('h1')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h1">
+      （23－χ）（48－χ）＝ 900<br>
+      1104－71χ＋χ² ＝ 900<br>
+      χ²－71χ＋204 ＝ 0<br>
+      （χ－3）（χ－68）＝ 0　→　0＜χ＜23 より　<strong>χ＝3</strong>
+    </div>
+    <div id="t1" class="timer-wrap">
+      <div class="timer-ring" id="ring-q1"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 6分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">道幅を選びなさい。</div>
+    <div class="choices" id="ch-q1">
+      <button class="ch" onclick="ans('q1',0,1)"><span class="cnum">1</span>2 m</button>
+      <button class="ch" onclick="ans('q1',1,1)"><span class="cnum">2</span>3 m</button>
+      <button class="ch" onclick="ans('q1',2,1)"><span class="cnum">3</span>4 m</button>
+      <button class="ch" onclick="ans('q1',3,1)"><span class="cnum">4</span>5 m</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q1"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－71χ＋204＝0 → χ＝3 です ✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q1"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">（23－χ）（48－χ）＝900 を展開して整理しよう</span></span><button class="reset-btn" onclick="resetQ('q1')">🔄 もう一度</button></div>
+    <div id="q1-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        （23－χ）（48－χ）＝900　→　χ²－71χ＋204＝0<br>
+        （χ－3）（χ－68）＝0　→　0＜χ＜23 より　<strong>χ＝3（m）</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q1-mA" onclick="setMark('q1m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q1-mB" onclick="setMark('q1m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q1-mC" onclick="setMark('q1m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q1"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q1">
+    <div class="clabel kai">段階解説</div>
+    <div id="q1-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　方程式を立てる</h4>
+      <p>道を端に移動すると，花壇全体は
+縦（23－χ）m，横（48－χ）m の長方形。
+
+<strong>（23－χ）（48－χ）＝ 900</strong></p>
+    </div>
+    <div id="q1-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　展開して整理する</h4>
+      <p>1104 － 71χ ＋ χ² ＝ 900
+<strong>χ² － 71χ ＋ 204 ＝ 0</strong></p>
+    </div>
+    <div id="q1-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－3）（χ－68）＝ 0
+χ ＝ 3，68
+
+0＜χ＜23 より　χ＝68 は不適
+<strong>χ ＝ 3</strong></p>
+    </div>
+    <div id="q1-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　確かめ</h4>
+      <p>（23－3）×（48－3）＝ 20×45 ＝ 900　✓
+
+<strong>答え：道幅 ＝ 3（m）</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q1" onclick="reveal('q1',4)">STEP 1 を見る ▼</button>
+    <div id="q1-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q1-kA" onclick="setMark('q1k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q1-kB" onclick="setMark('q1k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q1-kC" onclick="setMark('q1k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <hr class="prob-divider">
+
+  <!-- ── 演習2 ── -->
+  <div class="prob-n"><span class="n n-pr">2</span><span>演習 第2問</span></div>
+  <div class="card" id="q2-card">
+    <div class="clabel pr">演習 第2問</div>
+    <div class="q-text">
+      縦 <strong>15m</strong>，横 <strong>24m</strong> の長方形の土地がある。この土地に同じ幅の道を図のようにつけると，<strong>残りの面積の総和が 286m²</strong> となるという。道幅はいくらか。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 道の形が違っても考え方は同じ！</div>
+      道の形（十字・L字など）が違っても，<br>
+      <strong>道を端に集める</strong>発想で式を作ります。<br>
+      縦の道と横の道を端に移動 → <strong>（24－χ）（15－χ）＝ 286</strong>
+    </div>
+    <!-- 図解 -->
+    <div class="fig-wrap">
+      <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="15" y="15" width="270" height="130" fill="#e6f5f1" stroke="#0d9478" stroke-width="2"/>
+        <rect x="15" y="72" width="270" height="16" fill="#bcb8ae" opacity=".6"/>
+        <rect x="148" y="15" width="16" height="130" fill="#bcb8ae" opacity=".6"/>
+        <rect x="17" y="17" width="129" height="53" fill="#c5e8de"/>
+        <rect x="166" y="17" width="117" height="53" fill="#c5e8de"/>
+        <rect x="17" y="90" width="129" height="53" fill="#c5e8de"/>
+        <rect x="166" y="90" width="117" height="53" fill="#c5e8de"/>
+        <text x="150" y="9" text-anchor="middle" font-size="12" fill="#1a1814" font-family="sans-serif" font-weight="700">24m</text>
+        <text x="7" y="82" text-anchor="middle" font-size="11" fill="#1a1814" font-family="sans-serif" transform="rotate(-90,7,82)">15m</text>
+        <text x="156" y="82" text-anchor="middle" font-size="10" fill="#58544c" font-weight="700" font-family="sans-serif">χ</text>
+        <text x="80" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="230" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="80" y="120" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+        <text x="230" y="120" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">花壇</text>
+      </svg>
+      <div style="font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;">→ (24－χ)(15－χ) ＝ 286</div>
+    </div>
+    <button class="hint-toggle" onclick="toggleHint('h2')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h2">
+      （24－χ）（15－χ）＝ 286<br>
+      360－39χ＋χ² ＝ 286<br>
+      χ²－39χ＋74 ＝ 0<br>
+      （χ－2）（χ－37）＝ 0　→　0＜χ＜15 より　<strong>χ＝2</strong>
+    </div>
+    <div id="t2" class="timer-wrap">
+      <div class="timer-ring" id="ring-q2"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 6分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">道幅を選びなさい。</div>
+    <div class="choices" id="ch-q2">
+      <button class="ch" onclick="ans('q2',0,0)"><span class="cnum">1</span>2 m</button>
+      <button class="ch" onclick="ans('q2',1,0)"><span class="cnum">2</span>3 m</button>
+      <button class="ch" onclick="ans('q2',2,0)"><span class="cnum">3</span>4 m</button>
+      <button class="ch" onclick="ans('q2',3,0)"><span class="cnum">4</span>5 m</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q2"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－39χ＋74＝0 → χ＝2 です ✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q2"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">（24－χ）（15－χ）＝286 を展開しよう</span></span><button class="reset-btn" onclick="resetQ('q2')">🔄 もう一度</button></div>
+    <div id="q2-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        （24－χ）（15－χ）＝286　→　χ²－39χ＋74＝0<br>
+        （χ－2）（χ－37）＝0　→　0＜χ＜15 より　<strong>χ＝2（m）</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q2-mA" onclick="setMark('q2m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q2-mB" onclick="setMark('q2m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q2-mC" onclick="setMark('q2m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q2"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q2">
+    <div class="clabel kai">段階解説</div>
+    <div id="q2-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　方程式を立てる</h4>
+      <p>道を端に移動すると，花壇全体は
+縦（15－χ）m，横（24－χ）m の長方形。
+
+<strong>（24－χ）（15－χ）＝ 286</strong></p>
+    </div>
+    <div id="q2-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　展開して整理する</h4>
+      <p>360 － 39χ ＋ χ² ＝ 286
+<strong>χ² － 39χ ＋ 74 ＝ 0</strong></p>
+    </div>
+    <div id="q2-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－2）（χ－37）＝ 0
+χ ＝ 2，37
+
+0＜χ＜15 より　χ＝37 は不適
+<strong>χ ＝ 2</strong></p>
+    </div>
+    <div id="q2-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　確かめ</h4>
+      <p>（24－2）×（15－2）＝ 22×13 ＝ 286　✓
+
+<strong>答え：道幅 ＝ 2（m）</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q2" onclick="reveal('q2',4)">STEP 1 を見る ▼</button>
+    <div id="q2-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q2-kA" onclick="setMark('q2k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q2-kB" onclick="setMark('q2k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q2-kC" onclick="setMark('q2k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <hr class="prob-divider">
+
+  <!-- ── 演習3 ── -->
+  <div class="prob-n"><span class="n n-pr">3</span><span>演習 第3問　★ 周囲に道がある場合</span></div>
+  <div class="card" id="q3-card">
+    <div class="clabel pr">演習 第3問　★ 周囲に道がある場合</div>
+    <div class="q-text">
+      図のように，縦の長さが <strong>10m</strong>，横の長さが <strong>20m</strong> の長方形の花だんの<strong>周囲に幅χmの道</strong>がある。この<strong>道の面積が 216m²</strong> であるとき，χの値を求めなさい。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 今度は「外側に道がある」タイプ！</div>
+      これまでは土地の内側に道がありましたが，<br>
+      今度は花だんの<strong>外周</strong>に道があります。<br>
+      土地全体の面積 ＝ （10＋2χ）×（20＋2χ）<br>
+      道の面積 ＝ 土地全体 <strong>－</strong> 花だんの面積<br>
+      <strong>（10＋2χ）（20＋2χ）－ 10×20 ＝ 216</strong>
+    </div>
+    <!-- 図解 -->
+    <div class="fig-wrap">
+      <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+        <!-- 道（外枠） -->
+        <rect x="20" y="20" width="260" height="150" fill="#bcb8ae" opacity=".5" stroke="#a86000" stroke-width="1.5"/>
+        <!-- 花だん（内側） -->
+        <rect x="60" y="50" width="180" height="90" fill="#c5e8de" stroke="#0d9478" stroke-width="2"/>
+        <!-- 寸法：花だん -->
+        <text x="150" y="100" text-anchor="middle" font-size="13" fill="#0d9478" font-weight="700" font-family="sans-serif">花だん</text>
+        <text x="150" y="116" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">10m × 20m</text>
+        <!-- χの矢印 -->
+        <line x1="20" y1="95" x2="58" y2="95" stroke="#a86000" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="38" y="88" text-anchor="middle" font-size="11" fill="#a86000" font-weight="700" font-family="sans-serif">χm</text>
+        <!-- 全体寸法 -->
+        <text x="150" y="14" text-anchor="middle" font-size="11" fill="#a86000" font-family="sans-serif">20＋2χ</text>
+        <text x="10" y="97" text-anchor="middle" font-size="10" fill="#a86000" font-family="sans-serif" transform="rotate(-90,10,97)">10＋2χ</text>
+        <text x="150" y="178" text-anchor="middle" font-size="11" fill="#a86000" font-family="sans-serif">道の面積＝(10＋2χ)(20＋2χ)－200＝216</text>
+      </svg>
+    </div>
+    <button class="hint-toggle" onclick="toggleHint('h3')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h3">
+      （10＋2χ）（20＋2χ）－ 200 ＝ 216<br>
+      200＋60χ＋4χ² － 200 ＝ 216<br>
+      4χ²＋60χ－216 ＝ 0　→　両辺÷4<br>
+      χ²＋15χ－54 ＝ 0<br>
+      （χ－3）（χ＋18）＝ 0　→　χ＞0 より　<strong>χ＝3</strong>
+    </div>
+    <div id="t3" class="timer-wrap">
+      <div class="timer-ring" id="ring-q3"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 6分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">χの値を選びなさい。</div>
+    <div class="choices" id="ch-q3">
+      <button class="ch" onclick="ans('q3',0,1)"><span class="cnum">1</span>2</button>
+      <button class="ch" onclick="ans('q3',1,1)"><span class="cnum">2</span>3</button>
+      <button class="ch" onclick="ans('q3',2,1)"><span class="cnum">3</span>4</button>
+      <button class="ch" onclick="ans('q3',3,1)"><span class="cnum">4</span>5</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q3"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²＋15χ－54＝0 → χ＝3 です ✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q3"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">（10＋2χ）（20＋2χ）－200＝216 を展開しよう</span></span><button class="reset-btn" onclick="resetQ('q3')">🔄 もう一度</button></div>
+    <div id="q3-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        （10＋2χ）（20＋2χ）－200＝216<br>
+        4χ²＋60χ－216＝0　÷4　→　χ²＋15χ－54＝0<br>
+        （χ－3）（χ＋18）＝0　→　χ＞0 より　<strong>χ＝3</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q3-mA" onclick="setMark('q3m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q3-mB" onclick="setMark('q3m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q3-mC" onclick="setMark('q3m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q3"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q3">
+    <div class="clabel kai">段階解説</div>
+    <div id="q3-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　方程式を立てる</h4>
+      <p>道を含む全体：（10＋2χ）×（20＋2χ）
+花だんの面積：10×20 ＝ 200
+
+道の面積 ＝ 全体 － 花だん より
+
+<strong>（10＋2χ）（20＋2χ）－ 200 ＝ 216</strong></p>
+    </div>
+    <div id="q3-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　展開して整理する</h4>
+      <p>200＋60χ＋4χ² － 200 ＝ 216
+4χ² ＋ 60χ ＝ 216
+4χ² ＋ 60χ － 216 ＝ 0
+÷4：<strong>χ² ＋ 15χ － 54 ＝ 0</strong></p>
+    </div>
+    <div id="q3-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－3）（χ＋18）＝ 0
+χ ＝ 3，－18
+
+χ＞0 より　<strong>χ ＝ 3</strong></p>
+    </div>
+    <div id="q3-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　確かめ</h4>
+      <p>（10＋6）×（20＋6）－ 200 ＝ 16×26－200 ＝ 416－200 ＝ 216　✓
+
+<strong>答え：χ＝3</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q3" onclick="reveal('q3',4)">STEP 1 を見る ▼</button>
+    <div id="q3-fin" style="display:none">
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q3-kA" onclick="setMark('q3k','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q3-kB" onclick="setMark('q3k','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q3-kC" onclick="setMark('q3k','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+      <button class="next-page-btn cf" onclick="switchTab('cf')" style="margin-top:1.4rem;">確認問題へ進む →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ 確認問題 ════════════════ -->
+<div class="page" id="page-cf">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-cf">確</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">確認問題</div>
+      <div class="page-hdr-desc">入試レベルの問題に挑戦しよう。</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="pb-w"><div class="pb pb-cf" id="pb-cf" style="width:0%"></div></div>
+    <div class="pb-txt" id="pb-cf-txt">0 / 1 完了</div>
+  </div>
+
+  <div class="prob-n"><span class="n n-cf">確</span><span>確認問題</span></div>
+  <div class="card" id="q4-card">
+    <div class="clabel cf">確認問題</div>
+    <span class="prob-src">法政大第一高　入試問題</span>
+    <div class="q-text">
+      縦が <strong>24m</strong>，横が <strong>35m</strong> の長方形の土地がある。図のように，長方形の各辺に面した部分が <strong>χmの道路</strong> をつけて，残りの斜線部分を畑にしたい。<strong>畑の面積が 726m²</strong> になるような χ の値を求めよ。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 例題・演習1・2 と全く同じ考え方</div>
+      道を端に移動すると…<br>
+      畑の縦 ＝ <strong>24－χ</strong>，畑の横 ＝ <strong>35－χ</strong><br>
+      <strong>（24－χ）（35－χ）＝ 726</strong><br>
+      解いたあと <strong>0＜χ＜24</strong> を確認！
+    </div>
+    <!-- 図解 -->
+    <div class="fig-wrap">
+      <svg viewBox="0 0 300 155" xmlns="http://www.w3.org/2000/svg">
+        <!-- 土地の外枠 -->
+        <rect x="25" y="18" width="255" height="118" fill="#e6f5f1" stroke="#0d9478" stroke-width="2"/>
+        <!-- 横の道 -->
+        <rect x="25" y="71" width="255" height="13" fill="#bcb8ae" opacity=".65"/>
+        <!-- 縦の道 -->
+        <rect x="148" y="18" width="13" height="118" fill="#bcb8ae" opacity=".65"/>
+        <!-- 花壇4つ -->
+        <rect x="27" y="20" width="119" height="49" fill="#c5e8de"/>
+        <rect x="163" y="20" width="115" height="49" fill="#c5e8de"/>
+        <rect x="27" y="86" width="119" height="48" fill="#c5e8de"/>
+        <rect x="163" y="86" width="115" height="48" fill="#c5e8de"/>
+        <!-- 寸法ラベル（図の外側） -->
+        <text x="152" y="12" text-anchor="middle" font-size="12" fill="#1a1814" font-family="sans-serif" font-weight="700">35m</text>
+        <text x="13" y="80" text-anchor="middle" font-size="11" fill="#1a1814" font-family="sans-serif" transform="rotate(-90,13,80)">24m</text>
+        <!-- χラベル（道の中央） -->
+        <text x="154" y="79" text-anchor="middle" font-size="10" fill="#58544c" font-weight="700" font-family="sans-serif">χ</text>
+        <!-- 花壇ラベル -->
+        <text x="86" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">畑</text>
+        <text x="220" y="48" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">畑</text>
+        <text x="86" y="114" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">畑</text>
+        <text x="220" y="114" text-anchor="middle" font-size="11" fill="#0d9478" font-family="sans-serif">畑</text>
+      </svg>
+      <!-- 式は図の外・キャプション領域に表示 -->
+      <div style="font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;">→ (24－χ)(35－χ) ＝ 726</div>
+    </div>
+    <button class="hint-toggle" onclick="toggleHint('h4')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h4">
+      （24－χ）（35－χ）＝ 726<br>
+      840－59χ＋χ² ＝ 726<br>
+      χ²－59χ＋114 ＝ 0<br>
+      （χ－2）（χ－57）＝ 0　→　0＜χ＜24 より　<strong>χ＝2</strong>
+    </div>
+    <div id="t4" class="timer-wrap">
+      <div class="timer-ring" id="ring-q4"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 6分以内</span></div>
+    </div>
+    <div class="cf-result-ok" id="cf-result-ok">🎉 合格！素晴らしい！</div>
+    <div class="cf-result-ng" id="cf-result-ng">😅 おしい！もう一度挑戦！</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">χの値を選びなさい。</div>
+    <div class="choices" id="ch-q4">
+      <button class="ch cf-choice" data-correct="true"  onclick="cfSelect(this)"><span class="cnum">1</span>2</button>
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">2</span>3</button>
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">3</span>4</button>
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">4</span>5</button>
+    </div>
+    <button class="cf-judge-btn" id="cf-judge-btn" data-qid="q4" onclick="cfJudge()">答えを確認する ✓</button>
+    <div id="q4-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        （24－χ）（35－χ）＝726　→　χ²－59χ＋114＝0<br>
+        （χ－2）（χ－57）＝0　→　0＜χ＜24 より　<strong>χ＝2（m）</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q4-mA" onclick="setMark('q4m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q4-mB" onclick="setMark('q4m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q4-mC" onclick="setMark('q4m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q4"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q4">
+    <div class="clabel kai">段階解説</div>
+    <div id="q4-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　方程式を立てる</h4>
+      <p>道を端に移動すると，畑全体は
+縦（24－χ）m，横（35－χ）m の長方形。
+
+<strong>（24－χ）（35－χ）＝ 726</strong></p>
+    </div>
+    <div id="q4-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　展開して整理する</h4>
+      <p>840 － 59χ ＋ χ² ＝ 726
+<strong>χ² － 59χ ＋ 114 ＝ 0</strong></p>
+    </div>
+    <div id="q4-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－2）（χ－57）＝ 0
+χ ＝ 2，57
+
+0＜χ＜24 より　χ＝57 は不適
+<strong>χ ＝ 2</strong></p>
+    </div>
+    <div id="q4-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　確かめ</h4>
+      <p>（24－2）×（35－2）＝ 22×33 ＝ 726　✓
+
+<strong>答え：χ＝2（m）</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q4" onclick="reveal('q4',4)">STEP 1 を見る ▼</button>
+    <div id="q4-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q4-kA" onclick="setMark('q4k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q4-kB" onclick="setMark('q4k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q4-kC" onclick="setMark('q4k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <div class="unit-nav" id="unit-nav" style="display:flex;">
+    <div class="unit-nav-row"><a href="bunshou_index.html" class="unav-btn unav-index">📋 単元表に戻る</a></div>
+    <div class="unit-nav-row">
+      <a href="MQ-4.html" class="unav-btn unav-prev">← MQ-4 へ戻る</a>
+      <a href="MQ-6.html" class="unav-btn unav-next">次へ：体積を求める →</a>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+const TMAX=300;
+const answered={};
+const stepRev={q0:0,q1:0,q2:0,q3:0,q4:0};
+const timers={};
+let pracDone=0;
+function switchTab(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  ['ex','pr','cf'].forEach(t=>{document.getElementById('tab-'+t).className='tab-btn';});
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active-'+tab);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(tab==='pr'&&!answered.q1)startTimer('q1');
+  if(tab==='cf'&&!answered.q4)startTimer('q4');
+}
+function startTimer(qid){
+  if(timers[qid]||answered[qid])return;
+  const start=Date.now();const n=qid.slice(1);tick(0);
+  timers[qid]=setInterval(()=>tick(Math.floor((Date.now()-start)/1000)),1000);
+  function tick(sec){
+    const ring=document.getElementById('ring-'+qid);if(!ring)return;
+    const fg=ring.querySelector('.tfg');const txt=ring.querySelector('.tcenter');
+    const tw=document.getElementById('t'+n);const msg=tw?tw.querySelector('.timer-msg'):null;
+    const pct=Math.min(sec/TMAX,1);
+    fg.style.strokeDashoffset=126*pct;fg.className='tfg'+(pct>.8?' warn':'');
+    const m=Math.floor(sec/60),s=sec%60;txt.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(msg){
+      if(sec<60)msg.innerHTML='自力で考えましょう。<span class="goal">目標内</span>';
+      else if(sec<300)msg.innerHTML='じっくり考えています…<span class="goal">まだ大丈夫！</span>';
+      else msg.innerHTML='解説を見て確認しましょう。';
+    }
+  }
+}
+function stopTimer(qid){clearInterval(timers[qid]);timers[qid]=null;}
+function ans(qid,idx,correct){
+  if(answered[qid])return;answered[qid]=true;stopTimer(qid);
+  var isOk=(idx===correct);var n=parseInt(qid.slice(1));
+  var tw=document.getElementById('t'+n);if(tw)tw.style.display='none';
+  document.querySelectorAll('#ch-'+qid+' .ch').forEach(function(b,i){
+    b.disabled=true;
+    if(i===correct){b.className='ch ok';b.querySelector('.cnum').style.cssText='background:var(--teal);color:#fff';}
+    else if(i===idx&&!isOk){b.className='ch ng';b.querySelector('.cnum').style.cssText='background:var(--pink);color:#fff';}
+  });
+  var fbOk=document.getElementById('fb-ok-'+qid);var fbNg=document.getElementById('fb-ng-'+qid);
+  if(isOk){if(fbOk)fbOk.style.display='flex';_launchConfetti();}else{if(fbNg)fbNg.style.display='flex';}
+  var res=document.getElementById(qid+'-res');if(res)res.style.display='block';
+  var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='flex';
+  var kc=document.getElementById('kai-'+qid);
+  if(kc){kc.style.display='block';setTimeout(function(){kc.scrollIntoView({behavior:'smooth',block:'start'});},120);}
+  if(['q1','q2','q3'].includes(qid)){
+    pracDone++;
+    document.getElementById('pb-pr').style.width=(pracDone/3*100)+'%';
+    document.getElementById('pb-pr-txt').textContent=pracDone+' / 3 完了';
+    if(pracDone===3)document.getElementById('done-pr').style.display='flex';
+    var nextMap={q1:'q2',q2:'q3'};
+    if(nextMap[qid]&&!answered[nextMap[qid]])setTimeout(()=>startTimer(nextMap[qid]),300);
+  }
+}
+function reveal(qid,total){
+  const r=stepRev[qid];const el=document.getElementById(qid+'-s'+r);
+  if(el){el.style.display='block';stepRev[qid]++;setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+  const btn=document.getElementById('rb-'+qid);
+  if(stepRev[qid]>=total){btn.style.display='none';const fin=document.getElementById(qid+'-fin');if(fin){fin.style.display='block';setTimeout(()=>fin.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}}
+  else{btn.textContent='STEP '+stepRev[qid]+' を見る ▼';}
+}
+function toggleHint(id){const b=document.getElementById(id);b.style.display=b.style.display==='block'?'none':'block';}
+function setMark(prefix,m){
+  const base=prefix.slice(0,-1);const kind=prefix.slice(-1);
+  ['A','B','C'].forEach(x=>{const el=document.getElementById(base+'-'+kind+x);if(el)el.classList.toggle('on',x===m);});
+}
+function resetQ(qid){
+  delete answered[qid];stopTimer(qid);delete timers[qid];
+  var n=parseInt(qid.slice(1));
+  if(['q1','q2','q3'].includes(qid)){
+    if(pracDone>0)pracDone--;
+    document.getElementById('pb-pr').style.width=(pracDone/3*100)+'%';
+    document.getElementById('pb-pr-txt').textContent=pracDone+' / 3 完了';
+    document.getElementById('done-pr').style.display='none';
+  }
+  ['fb-ok-','fb-ng-'].forEach(function(p){var el=document.getElementById(p+qid);if(el)el.style.display='none';});
+  var res=document.getElementById(qid+'-res');if(res)res.style.display='none';
+  var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='none';
+  var kc=document.getElementById('kai-'+qid);if(kc)kc.style.display='none';
+  var tw=document.getElementById('t'+n);if(tw)tw.style.display='flex';
+  document.querySelectorAll('#ch-'+qid+' .ch').forEach(function(b){b.disabled=false;b.className='ch';var c=b.querySelector('.cnum');if(c)c.style.cssText='';});
+  document.querySelectorAll('[id^="'+qid+'-s"]').forEach(function(el){el.style.display='none';});
+  stepRev[qid]=0;
+  var rb=document.getElementById('rb-'+qid);if(rb){rb.style.display='';rb.textContent='STEP 1 を見る ▼';}
+  var fin=document.getElementById(qid+'-fin');if(fin)fin.style.display='none';
+  startTimer(qid);
+}
+var cfSelected=null,cfAnswered=false,cfCanvas=null,cfCtx=null,cfPts=[],cfRunning=false;
+function cfSelect(btn){
+  if(cfAnswered)return;
+  document.querySelectorAll('.cf-choice').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');cfSelected=btn;
+  document.getElementById('cf-judge-btn').classList.add('active');
+}
+function cfJudge(){
+  if(!cfSelected||cfAnswered)return;cfAnswered=true;
+  var isOk=cfSelected.getAttribute('data-correct')==='true';
+  document.querySelectorAll('.cf-choice').forEach(function(b){
+    b.disabled=true;
+    if(b.getAttribute('data-correct')==='true'){b.className='ch ok cf-choice';b.querySelector('.cnum').style.cssText='background:var(--teal);color:#fff';}
+    else if(b===cfSelected&&!isOk){b.className='ch ng cf-choice';b.querySelector('.cnum').style.cssText='background:var(--pink);color:#fff';}
+  });
+  document.getElementById('cf-judge-btn').style.display='none';
+  if(isOk){
+    document.getElementById('cf-result-ok').style.display='block';
+    _launchConfetti();startCfConfetti();
+    var qid=document.getElementById('cf-judge-btn').getAttribute('data-qid');
+    if(qid){setTimeout(function(){
+      document.getElementById(qid+'-res').style.display='block';
+      var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='flex';
+      var kc=document.getElementById('kai-'+qid);if(kc)kc.style.display='block';
+      document.getElementById('pb-cf').style.width='100%';
+      document.getElementById('pb-cf-txt').textContent='1 / 1 完了';
+      document.getElementById('done-cf').style.display='flex';
+      var un=document.getElementById('unit-nav');if(un)un.style.display='flex';
+    },800);}
+  }else{
+    document.getElementById('cf-result-ng').style.display='block';
+    setTimeout(function(){
+      document.getElementById('cf-result-ng').style.display='none';cfAnswered=false;cfSelected=null;
+      document.querySelectorAll('.cf-choice').forEach(function(b){b.disabled=false;b.classList.remove('selected','ok','ng');b.querySelector('.cnum').style.cssText='';});
+      document.getElementById('cf-judge-btn').classList.remove('active');document.getElementById('cf-judge-btn').style.display='';
+    },2000);
+  }
+}
+function startCfConfetti(){
+  cfCanvas=document.getElementById('confetti-canvas');
+  if(!cfCanvas){cfCanvas=document.createElement('canvas');cfCanvas.id='confetti-canvas';cfCanvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';document.body.appendChild(cfCanvas);}
+  cfCtx=cfCanvas.getContext('2d');cfCanvas.width=window.innerWidth;cfCanvas.height=window.innerHeight;
+  cfPts=[];for(var i=0;i<200;i++)cfPts.push({x:Math.random()*cfCanvas.width,y:Math.random()*cfCanvas.height-cfCanvas.height,s:Math.random()*10+4,c:'hsl('+Math.floor(Math.random()*360)+',80%,60%)',sp:Math.random()*4+2,r:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.2});
+  cfRunning=true;cfUpdate();setTimeout(function(){cfRunning=false;if(cfCtx)cfCtx.clearRect(0,0,cfCanvas.width,cfCanvas.height);},4000);
+}
+function cfUpdate(){if(!cfRunning)return;cfCtx.clearRect(0,0,cfCanvas.width,cfCanvas.height);cfPts.forEach(function(p){p.y+=p.sp;p.r+=p.rv;cfCtx.save();cfCtx.translate(p.x,p.y);cfCtx.rotate(p.r);cfCtx.fillStyle=p.c;cfCtx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cfCtx.restore();if(p.y>cfCanvas.height)p.y=-20;});requestAnimationFrame(cfUpdate);}
+function _launchConfetti(){
+  var cv=document.getElementById('_gamba_cf');
+  if(!cv){cv=document.createElement('canvas');cv.id='_gamba_cf';cv.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';document.body.appendChild(cv);}
+  var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;
+  var pts=[],run=true;
+  for(var i=0;i<200;i++)pts.push({x:Math.random()*cv.width,y:-Math.random()*cv.height*0.5,s:Math.random()*8+4,c:'hsl('+Math.floor(Math.random()*360)+',80%,60%)',sp:Math.random()*4+2,r:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.15});
+  (function step(){if(!run)return;requestAnimationFrame(step);ctx.clearRect(0,0,cv.width,cv.height);pts.forEach(function(p){p.y+=p.sp;p.r+=p.rv;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});})();
+  setTimeout(function(){run=false;ctx.clearRect(0,0,cv.width,cv.height);},3500);
+}
+startTimer('q0');
+</script>
+</body>
+</html>

@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAMBA｜MQ-7 動点の問題</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--sf:#fff;--sf2:#f0ede6;--bd:#d6d2c8;--bd2:#bcb8ae;--pink:#d93652;--teal:#0d9478;--blue:#2055b0;--amber:#a86000;--tl:#e6f5f1;--bl:#eaf0fb;--al:#fdf2dd;--pl:#fde8eb;--text:#1a1814;--text2:#58544c;--text3:#98948c;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;}
+.site-header{background:var(--sf);border-bottom:1px solid var(--bd);padding:.65rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Shippori Mincho',serif;font-size:1.05rem;color:var(--pink);}
+.logo-sep{color:var(--bd2);}
+.logo-sub{font-size:12px;color:var(--text2);}
+.tab-nav{background:var(--sf);border-bottom:2px solid var(--bd);position:sticky;top:46px;z-index:99;display:flex;padding:0 1rem;overflow-x:auto;}
+.tab-btn{padding:.7rem 1.1rem;font-size:13px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif;display:flex;align-items:center;gap:6px;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active-ex{color:var(--pink);border-bottom-color:var(--pink);}
+.tab-btn.active-pr{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-btn.active-cf{color:var(--amber);border-bottom-color:var(--amber);}
+.tab-pip{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.pip-ex{background:#fde8eb;color:var(--pink);}
+.pip-pr{background:var(--bl);color:var(--blue);}
+.pip-cf{background:var(--al);color:var(--amber);}
+.tab-done{width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:9px;display:none;align-items:center;justify-content:center;}
+.page{display:none;animation:fadeTab .2s ease;}
+.page.active{display:block;}
+@keyframes fadeTab{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+main{max-width:720px;margin:0 auto;padding:1.5rem 1rem 6rem;}
+.page-hdr{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:1rem 1.4rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:12px;}
+.page-hdr-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;flex-shrink:0;}
+.icon-ex{background:var(--pink);color:#fff;}
+.icon-pr{background:var(--blue);color:#fff;}
+.icon-cf{background:var(--amber);color:#fff;}
+.page-hdr-body{flex:1;}
+.page-hdr-title{font-size:15px;font-weight:700;margin-bottom:2px;}
+.page-hdr-desc{font-size:12px;color:var(--text2);}
+.prog-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:.8rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:12px;}
+.pb-w{flex:1;height:6px;background:var(--bd);border-radius:3px;overflow:hidden;}
+.pb{height:100%;border-radius:3px;transition:width .4s;}
+.pb-pr{background:var(--blue);}
+.pb-cf{background:var(--amber);}
+.pb-txt{font-size:12px;color:var(--text2);white-space:nowrap;}
+.next-page-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--r);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .15s;margin-top:.5rem;}
+.next-page-btn.pr{border-color:var(--blue);color:var(--blue);background:var(--bl);}
+.next-page-btn.cf{border-color:var(--amber);color:var(--amber);background:var(--al);}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:1.4rem 1.5rem;margin-bottom:1rem;}
+.clabel{font-size:11px;font-weight:700;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:6px;}
+.clabel::before{content:'';width:3px;height:14px;border-radius:2px;display:inline-block;}
+.clabel.ex{color:var(--pink);}.clabel.ex::before{background:var(--pink);}
+.clabel.pr{color:var(--blue);}.clabel.pr::before{background:var(--blue);}
+.clabel.cf{color:var(--amber);}.clabel.cf::before{background:var(--amber);}
+.clabel.kai{color:var(--teal);}.clabel.kai::before{background:var(--teal);}
+.q-text{font-size:15px;line-height:2;color:var(--text);margin-bottom:1rem;}
+.prob-src{display:inline-block;font-size:11px;color:var(--text3);background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px 10px;margin-bottom:.8rem;}
+.point-box{background:var(--al);border:1px solid #e0c888;border-radius:9px;padding:.9rem 1.2rem;margin-bottom:.9rem;font-size:13.5px;color:#6b4400;line-height:2;}
+.point-box .point-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:.5rem;}
+.point-box .point-title::before{content:'';width:3px;height:13px;background:var(--amber);border-radius:2px;display:inline-block;}
+.why-box{background:#f0f7ff;border:1px solid #b8d4f0;border-radius:9px;padding:.85rem 1.1rem;margin-bottom:.85rem;font-size:13px;color:#1a3a5c;line-height:1.9;}
+.why-box .why-title{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;margin-bottom:.4rem;}
+
+/* ── アニメーション図 ── */
+.anim-wrap{background:var(--sf2);border-radius:12px;padding:1rem;margin:.8rem 0;}
+.anim-wrap canvas{display:block;margin:0 auto;border-radius:8px;background:#fff;}
+.anim-controls{display:flex;align-items:center;gap:8px;margin-top:.6rem;flex-wrap:wrap;}
+.anim-btn{background:var(--teal);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:background .15s;}
+.anim-btn:hover{background:#0b7560;}
+.anim-btn.stop{background:var(--pink);}
+.anim-info{font-size:13px;color:var(--text2);flex:1;}
+.anim-info strong{color:var(--teal);}
+
+/* 時間変数テーブル */
+.var-table{width:100%;border-collapse:collapse;font-size:13px;margin:.6rem 0;}
+.var-table th{background:var(--sf2);padding:.5rem .8rem;text-align:left;font-weight:700;font-size:11px;color:var(--text3);border-bottom:1px solid var(--bd);}
+.var-table td{padding:.5rem .8rem;border-bottom:1px dashed var(--bd);font-family:'DM Mono',monospace;}
+.var-table td:first-child{font-family:'Noto Sans JP',sans-serif;font-weight:500;color:var(--text2);}
+.var-table .val{color:var(--teal);font-weight:700;}
+
+.exp-box{background:var(--sf2);border-radius:9px;padding:.9rem 1.15rem;margin-bottom:.75rem;border-left:3px solid var(--teal);animation:fadeIn .25s ease;}
+.exp-box h4{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.06em;margin-bottom:.5rem;}
+.exp-box p{font-size:14px;line-height:2;color:var(--text);white-space:pre-wrap;}
+.exp-box.blue{border-color:var(--blue);}.exp-box.blue h4{color:var(--blue);}
+.exp-box.amber{border-color:var(--amber);}.exp-box.amber h4{color:var(--amber);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.reveal-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-top:.2rem;transition:background .15s;}
+.reveal-btn:hover{background:#0b7560;}
+.kai-card{display:none;border-top:3px solid var(--teal);}
+.connector{display:none;flex-direction:column;align-items:center;margin:-.5rem 0;position:relative;z-index:2;}
+.connector-line{width:2px;height:20px;background:var(--teal);}
+.connector-arrow{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid var(--teal);}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:1rem;}
+.ch{background:var(--sf2);border:1.5px solid var(--bd);border-radius:9px;padding:10px 8px;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:'Noto Sans JP',sans-serif;width:100%;}
+.ch:hover:not(:disabled){border-color:var(--blue);background:var(--bl);}
+.ch:disabled{cursor:default;}
+.ch.ok{border-color:var(--teal);background:var(--tl);color:var(--teal);}
+.ch.ng{border-color:var(--pink);background:var(--pl);color:var(--pink);}
+.ch.selected{border-color:var(--blue);background:var(--bl);color:var(--blue);}
+.cnum{width:24px;height:24px;border-radius:50%;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.ch.ok .cnum{background:var(--teal);color:#fff;}
+.ch.ng .cnum{background:var(--pink);color:#fff;}
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.timer-ring{position:relative;width:48px;height:48px;flex-shrink:0;}
+.timer-ring svg{width:48px;height:48px;transform:rotate(-90deg);}
+circle{fill:none;stroke-width:3;stroke-linecap:round;}
+.tbg{stroke:var(--bd2);}
+.tfg{stroke:var(--teal);transition:stroke-dashoffset .9s linear;stroke-dasharray:126;stroke-dashoffset:0;}
+.tfg.warn{stroke:var(--amber);}
+.tcenter{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text2);font-family:'DM Mono',monospace;}
+.timer-msg{font-size:13px;color:var(--text2);line-height:1.5;}
+.timer-msg .goal{color:var(--teal);font-weight:500;}
+.hint-toggle{background:none;border:1px dashed var(--bd);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text2);cursor:pointer;margin-bottom:.75rem;font-family:'Noto Sans JP',sans-serif;transition:all .15s;}
+.hint-toggle:hover{border-color:var(--blue);color:var(--blue);}
+.hint-box{background:var(--bl);border:1px solid #a8c0e8;border-radius:9px;padding:.75rem 1rem;margin-bottom:.85rem;font-size:13px;color:var(--blue);line-height:1.9;display:none;}
+.abc-wrap{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--bd);}
+.abc-lbl{font-size:12px;color:var(--text2);margin-bottom:.7rem;}
+.abc-row{display:flex;gap:7px;}
+.abc-btn{flex:1;padding:9px 5px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid;transition:all .15s;font-family:'Noto Sans JP',sans-serif;text-align:center;line-height:1.3;}
+.abc-btn span{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.85;}
+.abc-A{border-color:var(--teal);color:var(--teal);background:var(--tl);}
+.abc-A:hover,.abc-A.on{background:var(--teal);color:#fff;}
+.abc-B{border-color:var(--blue);color:var(--blue);background:var(--bl);}
+.abc-B:hover,.abc-B.on{background:var(--blue);color:#fff;}
+.abc-C{border-color:var(--amber);color:var(--amber);background:var(--al);}
+.abc-C:hover,.abc-C.on{background:var(--amber);color:#fff;}
+.prob-n{display:inline-flex;align-items:center;gap:8px;margin-bottom:.9rem;}
+.prob-n .n{width:28px;height:28px;border-radius:6px;font-size:.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.n-pr{background:var(--blue);color:#fff;}
+.n-cf{background:var(--amber);color:#fff;}
+.prob-n span{font-size:12px;color:var(--text3);}
+.prob-divider{border:none;border-top:1px dashed var(--bd);margin:1.8rem 0 1.5rem;}
+.cf-judge-btn{width:100%;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:1rem;transition:background .15s;display:none;}
+.cf-judge-btn:hover{background:#8a5000;}
+.cf-judge-btn.active{display:block;}
+.cf-result-ok{background:var(--tl);border:2px solid var(--teal);border-radius:10px;padding:1.2rem;text-align:center;font-size:20px;font-weight:900;color:var(--teal);margin-bottom:1rem;display:none;animation:popIn .4s ease;}
+.cf-result-ng{background:var(--pl);border:2px solid var(--pink);border-radius:10px;padding:1rem;text-align:center;font-size:18px;font-weight:900;color:var(--pink);margin-bottom:1rem;display:none;animation:popIn .4s ease;}
+@keyframes popIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.fb-ok{display:none;align-items:center;gap:12px;background:#e6faf3;border:2px solid #0d9478;border-radius:12px;padding:12px 16px;margin:8px 0 4px;animation:fbPop .3s ease;}
+.fb-ng{display:none;align-items:center;gap:12px;background:#fde8eb;border:2px solid #d93652;border-radius:12px;padding:12px 16px;margin:8px 0 4px;animation:fbPop .3s ease;}
+@keyframes fbPop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.reset-btn{background:none;border:1.5px solid #d93652;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:#d93652;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-left:auto;flex-shrink:0;transition:all .15s;white-space:nowrap;}
+.reset-btn:hover{background:#d93652;color:#fff;}
+.fb-icon{font-size:1.7rem;flex-shrink:0;}
+.fb-text{font-size:13px;font-weight:700;line-height:1.5;}
+.fb-ok .fb-text{color:#0d9478;}
+.fb-ng .fb-text{color:#d93652;}
+.fb-sub{font-size:11px;font-weight:400;display:block;margin-top:1px;opacity:.8;}
+.unit-nav{display:none;flex-direction:column;gap:10px;margin:1.8rem 0 0;padding-top:1.4rem;border-top:2px dashed #d6d2c8;}
+.unit-nav-row{display:flex;gap:8px;flex-wrap:wrap;}
+.unav-btn{flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;border:2px solid;font-family:'Noto Sans JP',sans-serif;transition:all .15s;text-align:center;}
+.unav-index{background:#fff;border-color:#d6d2c8;color:#58544c;}
+.unav-index:hover{border-color:#7d3eb0;color:#7d3eb0;background:#f1e8f7;}
+.unav-prev{background:var(--sf2);border-color:var(--bd2);color:var(--text2);}
+.unav-prev:hover{border-color:var(--teal);color:var(--teal);}
+.unav-next{background:#7d3eb0;border-color:#7d3eb0;color:#fff;}
+.unav-next:hover{background:#5a2a80;}
+
+/* 縦型分数 */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px;font-size:.92em;line-height:1.1;}
+.frac .fn{border-bottom:1.5px solid currentColor;padding:0 3px;text-align:center;}
+.frac .fd{padding:0 3px;text-align:center;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <span class="logo">GAMBA</span><span class="logo-sep">|</span>
+  <span class="logo-sub">中3 二次方程式の文章題 ／ MQ-7　動点の問題</span>
+</header>
+<nav class="tab-nav">
+  <button class="tab-btn active-ex" id="tab-ex" onclick="switchTab('ex')"><span class="tab-pip pip-ex">例</span>例題</button>
+  <button class="tab-btn" id="tab-pr" onclick="switchTab('pr')"><span class="tab-pip pip-pr">演</span>演習問題<span class="tab-done" id="done-pr">✓</span></button>
+  <button class="tab-btn" id="tab-cf" onclick="switchTab('cf')"><span class="tab-pip pip-cf">確</span>確認問題<span class="tab-done" id="done-cf">✓</span></button>
+</nav>
+<main>
+
+<!-- ════════════════ 例題 ════════════════ -->
+<div class="page active" id="page-ex">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-ex">例</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">例題 ─ 動点の問題（長方形上を動く2点）</div>
+      <div class="page-hdr-desc">二次方程式の文章題 ／ 中学3年</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="clabel ex">例題</div>
+    <div class="q-text">
+      AB＝12cm，BC＝16cm の長方形 ABCD について，点 P は B から C まで <strong>2cm/秒</strong> の速さで，点 Q は C から D まで <strong>1cm/秒</strong> で動く。P，Q は同時に出発するとする。<strong>△PCQ の面積が 15cm²</strong> となるのは何秒後か。
+    </div>
+
+    <div class="why-box">
+      <div class="why-title">💡 動点問題のポイント</div>
+      ① 時間を χ 秒とおく<br>
+      ② 各点の位置を χ で表す（速さ×時間）<br>
+      ③ 三角形の面積の式を立てて方程式を解く<br>
+      ④ 解が <strong>変域内</strong>（各点がまだ辺の上にある）かを確認する
+    </div>
+
+    <!-- インタラクティブアニメーション -->
+    <div class="anim-wrap">
+      <canvas id="c0" width="360" height="220"></canvas>
+      <div class="anim-controls">
+        <button class="anim-btn" onclick="animPlay('c0')">▶ 動かす</button>
+        <button class="anim-btn stop" onclick="animStop('c0')">■ 止める</button>
+        <div class="anim-info" id="info-c0">χ ＝ <strong>0</strong> 秒　△PCQ ＝ <strong>0</strong> cm²</div>
+      </div>
+    </div>
+
+    <!-- 変数の確認 -->
+    <table class="var-table">
+      <tr><th>変数</th><th>χ 秒後の長さ</th><th>理由</th></tr>
+      <tr><td>BP</td><td><span class="val">2χ cm</span></td><td>速さ2cm/秒 × χ秒</td></tr>
+      <tr><td>PC</td><td><span class="val">(16－2χ) cm</span></td><td>BC＝16 から BP を引く</td></tr>
+      <tr><td>CQ</td><td><span class="val">χ cm</span></td><td>速さ1cm/秒 × χ秒</td></tr>
+    </table>
+
+    <div class="point-box">
+      <div class="point-title">三角形の面積の公式</div>
+      △PCQ は直角三角形（C で直角）<br>
+      面積 ＝ <strong><span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × PC × CQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × (16－2χ) × χ ＝ 15</strong><br>
+      両辺×2：<strong>(16－2χ)χ ＝ 30</strong>
+    </div>
+
+    <div id="q0-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　χ 秒後の PC，CQ を χ で表す</h4>
+      <p>BP ＝ 2χ　より　PC ＝ 16－2χ
+CQ ＝ χ
+
+△PCQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × PC × CQ ＝ 15
+<strong><span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × (16－2χ) × χ ＝ 15</strong></p>
+    </div>
+    <div id="q0-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　両辺を整理する</h4>
+      <p>両辺 ×2：（16－2χ）χ ＝ 30
+16χ－2χ² ＝ 30
+0 ＝ 2χ²－16χ＋30
+÷2：<strong>χ²－8χ＋15 ＝ 0</strong></p>
+    </div>
+    <div id="q0-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　因数分解して解く</h4>
+      <p>（χ－3）（χ－5）＝ 0
+χ ＝ 3　または　χ ＝ 5
+
+変域の確認：P が C に着くのは 16÷2＝8 秒後
+Q が D に着くのは 12÷1＝12 秒後
+→ <strong>0≦χ≦8</strong> の範囲で両方適する</p>
+    </div>
+    <div id="q0-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　確かめ</h4>
+      <p>χ＝3：PC＝10，CQ＝3　→　<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×10×3＝15　✓
+χ＝5：PC＝6，CQ＝5　→　<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×6×5＝15　✓
+
+<strong>答え：3秒後 と 5秒後</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q0" onclick="reveal('q0',4)">STEP 1 を見る ▼</button>
+    <div id="q0-fin" style="display:none">
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q0-kA" onclick="setMark('q0k','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q0-kB" onclick="setMark('q0k','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q0-kC" onclick="setMark('q0k','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+      <button class="next-page-btn pr" onclick="switchTab('pr')" style="margin-top:1.4rem;">演習問題へ進む →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ 演習 ════════════════ -->
+<div class="page" id="page-pr">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-pr">演</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">演習問題</div>
+      <div class="page-hdr-desc">χ 秒後の各辺の長さを確認してから面積の式を立てよう。</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="pb-w"><div class="pb pb-pr" id="pb-pr" style="width:0%"></div></div>
+    <div class="pb-txt" id="pb-pr-txt">0 / 3 完了</div>
+  </div>
+
+  <!-- ── 演習1 ── -->
+  <div class="prob-n"><span class="n n-pr">1</span><span>演習 第1問</span></div>
+  <div class="card" id="q1-card">
+    <div class="clabel pr">演習 第1問　─　正方形上を動く2点</div>
+    <div class="q-text">
+      1辺 <strong>8cm</strong> の正方形 ABCD で，点 P は B を出発して辺 BC を <strong>2cm/秒</strong> で C まで動く。点 Q は同時に C を出発して，辺 CD 上を <strong>毎秒1cm</strong> の速さで D まで動く。<strong>△APQ の面積が 17cm²</strong> になるのは P と Q が出発してから何秒後か求めなさい。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 △APQ を直接求めにくい → 全体から引く</div>
+      正方形全体から <strong>3つの三角形を引く</strong> 方法を使います。<br>
+      △APQ ＝ 正方形の面積 <strong>－（①＋②＋③）</strong>
+    </div>
+
+    <!-- アニメーション -->
+    <div class="anim-wrap">
+      <canvas id="c1" width="300" height="260"></canvas>
+      <div class="anim-controls">
+        <button class="anim-btn" onclick="animPlay('c1')">▶ 動かす</button>
+        <button class="anim-btn stop" onclick="animStop('c1')">■ 止める</button>
+        <div class="anim-info" id="info-c1">χ ＝ <strong>0</strong> 秒　△APQ ＝ <strong>32</strong> cm²</div>
+      </div>
+    </div>
+
+    <table class="var-table">
+      <tr><th>三角形</th><th>面積（χ秒後）</th></tr>
+      <tr><td>① △ABP</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×8×2χ ＝ 8χ</span></td></tr>
+      <tr><td>② △APD（△AQD）</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×8×(8－χ) ＝ 32－4χ</span></td></tr>
+      <tr><td>③ △BPQ（△CPQ）</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(8－2χ)×χ ＝ 4χ－χ²</span></td></tr>
+    </table>
+
+    <div style="background:var(--sf2);border-radius:8px;padding:.65rem 1rem;font-size:13px;color:var(--text2);margin:.5rem 0 .8rem;">
+      △APQ ＝ 64－(8χ＋32－4χ＋4χ－χ²) ＝ <strong>χ²－8χ＋32 ＝ 17</strong>
+    </div>
+
+    <button class="hint-toggle" onclick="toggleHint('h1')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h1">
+      χ²－8χ＋32 ＝ 17<br>
+      χ²－8χ＋15 ＝ 0<br>
+      （χ－3）（χ－5）＝ 0　→　χ＝3，5<br>
+      P が C に着くのは 8÷2＝4 秒後なので <strong>0≦χ≦4</strong><br>
+      よって　<strong>χ＝3 秒後</strong>
+    </div>
+    <div id="t1" class="timer-wrap">
+      <div class="timer-ring" id="ring-q1"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 7分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">何秒後かを選びなさい。</div>
+    <div class="choices" id="ch-q1">
+      <button class="ch" onclick="ans('q1',0,1)"><span class="cnum">1</span>2 秒後</button>
+      <button class="ch" onclick="ans('q1',1,1)"><span class="cnum">2</span>3 秒後</button>
+      <button class="ch" onclick="ans('q1',2,1)"><span class="cnum">3</span>4 秒後</button>
+      <button class="ch" onclick="ans('q1',3,1)"><span class="cnum">4</span>5 秒後</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q1"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－8χ＋15＝0 → χ＝3（0≦χ≦4 より）✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q1"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">変域 0≦χ≦4 を確認しよう</span></span><button class="reset-btn" onclick="resetQ('q1')">🔄 もう一度</button></div>
+    <div id="q1-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        χ²－8χ＋32＝17　→　χ²－8χ＋15＝0<br>
+        （χ－3）（χ－5）＝0　→　χ＝3，5<br>
+        0≦χ≦4 より　<strong>χ＝3 秒後</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q1-mA" onclick="setMark('q1m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q1-mB" onclick="setMark('q1m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q1-mC" onclick="setMark('q1m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q1"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q1">
+    <div class="clabel kai">段階解説</div>
+    <div id="q1-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　χ 秒後の各辺を確認する</h4>
+      <p>BP ＝ 2χ（P の移動距離）
+CQ ＝ χ（Q の移動距離）
+
+正方形全体 ＝ 8×8 ＝ 64cm²
+△APQ ＝ 64 － (①＋②＋③)</p>
+    </div>
+    <div id="q1-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　3つの三角形の面積を求める</h4>
+      <p>① △ABP ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×8×2χ ＝ 8χ
+② △AQD ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×8×(8－χ) ＝ 32－4χ
+③ △PCQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(8－2χ)×χ ＝ 4χ－χ²
+
+合計：8χ＋32－4χ＋4χ－χ² ＝ －χ²＋8χ＋32</p>
+    </div>
+    <div id="q1-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　方程式を立てて解く</h4>
+      <p>△APQ ＝ 64－(－χ²＋8χ＋32)
+　　　　＝ χ²－8χ＋32 ＝ 17
+
+χ²－8χ＋15 ＝ 0
+（χ－3）（χ－5）＝ 0
+χ ＝ 3，5</p>
+    </div>
+    <div id="q1-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　変域を確認して答える</h4>
+      <p>P が C に着く：8÷2 ＝ 4 秒後
+よって　<strong>0≦χ≦4</strong>
+
+χ＝5 は不適
+<strong>答え：3 秒後</strong>
+
+【確かめ】χ＝3：△APQ＝9－24＋32＝17　✓</p>
+    </div>
+    <button class="reveal-btn" id="rb-q1" onclick="reveal('q1',4)">STEP 1 を見る ▼</button>
+    <div id="q1-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q1-kA" onclick="setMark('q1k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q1-kB" onclick="setMark('q1k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q1-kC" onclick="setMark('q1k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <hr class="prob-divider">
+
+  <!-- ── 演習2 ── -->
+  <div class="prob-n"><span class="n n-pr">2</span><span>演習 第2問</span></div>
+  <div class="card" id="q2-card">
+    <div class="clabel pr">演習 第2問　─　長方形上を動く2点（A出発）</div>
+    <div class="q-text">
+      図のような AB＝6cm，AD＝8cm の長方形 ABCD がある。2点 P，Q は頂点 A を同時に出発し，点 P は辺 AB 上を頂点 B まで，点 Q は辺 AD 上を頂点 D まで<strong>ともに毎秒1cm</strong> の速さで動く。ただし，点 Q は点 P が頂点 B に着くと停止する。<strong>△PCQ の面積が 12cm²</strong> になるのは，出発してから何秒後か。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 長方形全体から3つを引く方法</div>
+      同じく「全体 ～ 3つの三角形」を使います。<br>
+      AP＝χ，AQ＝χ（同じ速さ！）<br>
+      PB＝6－χ，QD＝8－χ
+    </div>
+
+    <!-- アニメーション -->
+    <div class="anim-wrap">
+      <canvas id="c2" width="300" height="240"></canvas>
+      <div class="anim-controls">
+        <button class="anim-btn" onclick="animPlay('c2')">▶ 動かす</button>
+        <button class="anim-btn stop" onclick="animStop('c2')">■ 止める</button>
+        <div class="anim-info" id="info-c2">χ ＝ <strong>0</strong> 秒　△PCQ ＝ <strong>0</strong> cm²</div>
+      </div>
+    </div>
+
+    <table class="var-table">
+      <tr><th>三角形</th><th>面積</th></tr>
+      <tr><td>① △APQ</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×χ×χ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²</span></td></tr>
+      <tr><td>② △PBC</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－χ)×8 ＝ 24－4χ</span></td></tr>
+      <tr><td>③ △QDC</td><td><span class="val"><span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(8－χ)×6 ＝ 24－3χ</span></td></tr>
+    </table>
+
+    <div style="background:var(--sf2);border-radius:8px;padding:.65rem 1rem;font-size:13px;color:var(--text2);margin:.5rem 0 .8rem;">
+      △PCQ ＝ 48 － (<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋24－4χ＋24－3χ) ＝ <strong>－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ ＝ 12</strong>
+    </div>
+
+    <button class="hint-toggle" onclick="toggleHint('h2')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h2">
+      －<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ ＝ 12　両辺×（－2）<br>
+      χ²－14χ＋24 ＝ 0<br>
+      （χ－6）（χ－？）… いや（χ－12）（χ－2）＝0<br>
+      →　χ＝2，12<br>
+      P が B に着く：6秒後　→　<strong>0≦χ≦6</strong><br>
+      よって　<strong>χ＝2 秒後 と 6秒後（→（χ－6）（χ－2）＝0 なので χ＝6 も確認）</strong>
+    </div>
+    <div id="t2" class="timer-wrap">
+      <div class="timer-ring" id="ring-q2"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 8分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">答えを選びなさい。</div>
+    <div class="choices" id="ch-q2">
+      <button class="ch" onclick="ans('q2',0,3)"><span class="cnum">1</span>2 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',1,3)"><span class="cnum">2</span>4 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',2,3)"><span class="cnum">3</span>6 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',3,3)"><span class="cnum">4</span>2秒後と6秒後</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q2"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－14χ＋24＝0 → χ＝2，6 の両方です ✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q2"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">両辺に×(－2) して整理しよう</span></span><button class="reset-btn" onclick="resetQ('q2')">🔄 もう一度</button></div>
+    <div id="q2-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        －<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ＝12　×(－2)　→　χ²－14χ＋24＝0<br>
+        （χ－2）（χ－12）＝0　→　χ＝2，12<br>
+        0≦χ≦6 より　<strong>2秒後 と 6秒後</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q2-mA" onclick="setMark('q2m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q2-mB" onclick="setMark('q2m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q2-mC" onclick="setMark('q2m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q2"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q2">
+    <div class="clabel kai">段階解説</div>
+    <div id="q2-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　χ 秒後の各辺を確認する</h4>
+      <p>AP ＝ χ，AQ ＝ χ（同じ速さ）
+PB ＝ 6－χ，QD ＝ 8－χ
+
+長方形全体 ＝ 6×8 ＝ 48cm²
+△PCQ ＝ 48 － (①＋②＋③)</p>
+    </div>
+    <div id="q2-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　3つの三角形の面積を求める</h4>
+      <p>① △APQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×χ×χ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²
+② △PBC ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－χ)×8 ＝ 24－4χ
+③ △QDC ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(8－χ)×6 ＝ 24－3χ
+
+合計：<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋24－4χ＋24－3χ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²－7χ＋48</p>
+    </div>
+    <div id="q2-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　方程式を立てて解く</h4>
+      <p>△PCQ ＝ 48 － (<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²－7χ＋48)
+　　　　＝ －<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ ＝ 12
+
+両辺×(－2)：χ²－14χ ＝ －24
+<strong>χ²－14χ＋24 ＝ 0</strong>
+（χ－2）（χ－12）＝ 0
+χ ＝ 2，12</p>
+    </div>
+    <div id="q2-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　変域を確認して答える</h4>
+      <p>P が B に着く：6÷1 ＝ 6 秒後
+よって　<strong>0≦χ≦6</strong>
+
+χ＝12 は不適
+<strong>答え：2 秒後 と 6 秒後</strong>
+
+【確かめ】χ＝2：－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×4＋14＝12　✓
+　　　　χ＝6：－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×36＋42＝12　✓</p>
+    </div>
+    <button class="reveal-btn" id="rb-q2" onclick="reveal('q2',4)">STEP 1 を見る ▼</button>
+    <div id="q2-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q2-kA" onclick="setMark('q2k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q2-kB" onclick="setMark('q2k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q2-kC" onclick="setMark('q2k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <hr class="prob-divider">
+
+  <!-- ── 演習3 ── -->
+  <div class="prob-n"><span class="n n-pr">3</span><span>演習 第3問　★変域で場合分け</span></div>
+  <div class="card" id="q3-card">
+    <div class="clabel pr">演習 第3問　★変域で場合分け</div>
+    <div class="q-text">
+      たて <strong>12cm</strong>，横 <strong>24cm</strong> の長方形がある。点 P は，A を出発して辺 AB，BC 上を <strong>毎秒6cm</strong> の速さで A→B→C の順に C まで動く。点 Q は，P が A を出発したのと同時に B を出発し，辺 BC 上を <strong>毎秒2cm</strong> の速さで C まで動く。<strong>△APQ の面積が長方形 ABCD の面積の <span class="frac"><span class="fn">1</span><span class="fd">6</span></span></strong> になるのは，P，Q が出発してから何秒後か。
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 Pの動く辺によって場合分けが必要！</div>
+      P が B に着くのは 24÷6＝4 秒後<br>
+      P が C に着くのは（12＋24）÷6＝6 秒後<br>
+      <strong>0≦χ≦4（P が AB 上）</strong> と <strong>4≦χ≦6（P が BC 上）</strong> で場合分けする。
+    </div>
+
+    <!-- アニメーション -->
+    <div class="anim-wrap">
+      <canvas id="c3" width="360" height="220"></canvas>
+      <div class="anim-controls">
+        <button class="anim-btn" onclick="animPlay('c3')">▶ 動かす</button>
+        <button class="anim-btn stop" onclick="animStop('c3')">■ 止める</button>
+        <div class="anim-info" id="info-c3">χ ＝ <strong>0</strong> 秒　△APQ ＝ <strong>0</strong> cm²</div>
+      </div>
+    </div>
+
+    <div style="background:var(--al);border-radius:9px;padding:.8rem 1rem;font-size:13px;color:#6b4400;margin:.5rem 0 .8rem;line-height:2;">
+      <strong>長方形の面積の<span class="frac"><span class="fn">1</span><span class="fd">6</span></span></strong> ＝ 12×24×<span class="frac"><span class="fn">1</span><span class="fd">6</span></span> ＝ <strong>48cm²</strong>
+    </div>
+
+    <button class="hint-toggle" onclick="toggleHint('h3')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h3">
+      【場合1】0≦χ≦4（P が AB 上）<br>
+      　BP＝6χ，QB＝2χ，AP＝6χ（高さ），底辺QP＝2χ<br>
+      　△APQ＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×6χ×2χ＝6χ²＝48　→　χ²＝8　→　χ＝2√2 秒後<br><br>
+      【場合2】4≦χ≦6（P が BC 上）<br>
+      　PB＝6χ－24，QB＝2χ，QP＝2χ－(6χ－24)＝－4χ＋24<br>
+      　△APQ＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×AB×QP＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×24×(－4χ＋24)＝－48χ＋288＝48<br>
+      　－48χ＝－240　→　χ＝5 秒後
+    </div>
+    <div id="t3" class="timer-wrap">
+      <div class="timer-ring" id="ring-q3"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 10分以内</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">答えを選びなさい。</div>
+    <div class="choices" id="ch-q3">
+      <button class="ch" onclick="ans('q3',0,3)"><span class="cnum">1</span>2√2秒後のみ</button>
+      <button class="ch" onclick="ans('q3',1,3)"><span class="cnum">2</span>5秒後のみ</button>
+      <button class="ch" onclick="ans('q3',2,3)"><span class="cnum">3</span>4秒後と5秒後</button>
+      <button class="ch" onclick="ans('q3',3,3)"><span class="cnum">4</span>2√2秒後と5秒後</button>
+    </div>
+    <div class="fb-ok" id="fb-ok-q3"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">場合分けをきちんと処理できました ✨</span></span></div>
+    <div class="fb-ng" id="fb-ng-q3"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">0≦χ≦4 と 4≦χ≦6 の2つで考えよう</span></span><button class="reset-btn" onclick="resetQ('q3')">🔄 もう一度</button></div>
+    <div id="q3-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        場合1（0≦χ≦4）：△APQ＝6χ²＝48　→　<strong>χ＝2√2 秒後</strong><br>
+        場合2（4≦χ≦6）：△APQ＝－48χ＋288＝48　→　<strong>χ＝5 秒後</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q3-mA" onclick="setMark('q3m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q3-mB" onclick="setMark('q3m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q3-mC" onclick="setMark('q3m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q3"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q3">
+    <div class="clabel kai">段階解説</div>
+    <div id="q3-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　変域の確認と目標面積</h4>
+      <p>P が B に着く：24÷6 ＝ 4 秒後
+P が C に着く：(12＋24)÷6 ＝ 6 秒後
+
+目標面積：12×24×<span class="frac"><span class="fn">1</span><span class="fd">6</span></span> ＝ <strong>48cm²</strong>
+
+場合1：<strong>0≦χ≦4</strong>（P が AB 上）
+場合2：<strong>4≦χ≦6</strong>（P が BC 上）</p>
+    </div>
+    <div id="q3-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　場合1（0≦χ≦4）の面積</h4>
+      <p>AP＝6χ（高さ），QB＝2χ（底辺の一部）
+△APQ の底辺＝QB＝2χ，高さ＝AB＝... 
+
+正しくは：AP は辺 AB 上，P は B から 6χ 進んでいる
+AP の長さ＝6χ（B からの距離）
+
+△APQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × AP × QB ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × 6χ × 2χ ＝ <strong>6χ²</strong>
+
+6χ² ＝ 48　→　χ² ＝ 8
+<strong>χ ＝ 2√2 秒後</strong>（0≦2√2≦4 ✓）</p>
+    </div>
+    <div id="q3-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　場合2（4≦χ≦6）の面積</h4>
+      <p>P が BC 上にある。PB ＝ 6χ－24
+QB ＝ 2χ（Q は B から 2χ 進んでいる）
+
+QP ＝ QB－PB ＝ 2χ－(6χ－24) ＝ <strong>－4χ＋24</strong>
+
+△APQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×AB×QP
+　　　＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×24×(－4χ＋24)
+　　　＝ <strong>－48χ＋288</strong></p>
+    </div>
+    <div id="q3-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　場合2の方程式を解く</h4>
+      <p>－48χ＋288 ＝ 48
+－48χ ＝ －240
+<strong>χ ＝ 5 秒後</strong>（4≦5≦6 ✓）
+
+<strong>答え：2√2 秒後 と 5 秒後</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q3" onclick="reveal('q3',4)">STEP 1 を見る ▼</button>
+    <div id="q3-fin" style="display:none">
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q3-kA" onclick="setMark('q3k','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q3-kB" onclick="setMark('q3k','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q3-kC" onclick="setMark('q3k','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+      <button class="next-page-btn cf" onclick="switchTab('cf')" style="margin-top:1.4rem;">確認問題へ進む →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════ 確認問題 ════════════════ -->
+<div class="page" id="page-cf">
+  <div class="page-hdr">
+    <div class="page-hdr-icon icon-cf">確</div>
+    <div class="page-hdr-body">
+      <div class="page-hdr-title">確認問題</div>
+      <div class="page-hdr-desc">入試レベルの問題に挑戦しよう。</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="pb-w"><div class="pb pb-cf" id="pb-cf" style="width:0%"></div></div>
+    <div class="pb-txt" id="pb-cf-txt">0 / 1 完了</div>
+  </div>
+
+  <div class="prob-n"><span class="n n-cf">確</span><span>確認問題</span></div>
+  <div class="card" id="q4-card">
+    <div class="clabel cf">確認問題</div>
+    <span class="prob-src">市川高　入試問題</span>
+    <div class="q-text">
+      次図のように1辺 <strong>6cm</strong> の正方形がある。点 P は A を出発し<strong>毎秒1cm</strong> の速さで反時計回りに，点 Q は A 点を出発し<strong>毎秒2cm</strong> の速さで時計回りに，ともに辺上を動く。2点 P，Q が点 A を同時に出発してから <strong>χ 秒後</strong>について，<strong>△CPQ の面積が 14cm²</strong> となる χ の値をすべて求めなさい。（ただし χ の変域は 0≦χ≦6）
+    </div>
+    <div class="why-box">
+      <div class="why-title">💡 P と Q が逆方向に動く！</div>
+      P（反時計回り・毎秒1cm）：A→B方向へ　χ秒後 AP＝χ<br>
+      Q（時計回り・毎秒2cm）：A→D方向へ　χ秒後 AQ＝2χ<br><br>
+      Q が D に着く：6÷2＝3秒後<br>
+      場合1：<strong>0≦χ≦3</strong>（Q が AD 上）<br>
+      場合2：<strong>3≦χ≦6</strong>（Q が DC 上）
+    </div>
+
+    <!-- アニメーション -->
+    <div class="anim-wrap">
+      <canvas id="c4" width="300" height="260"></canvas>
+      <div class="anim-controls">
+        <button class="anim-btn" onclick="animPlay('c4')">▶ 動かす</button>
+        <button class="anim-btn stop" onclick="animStop('c4')">■ 止める</button>
+        <div class="anim-info" id="info-c4">χ ＝ <strong>0</strong> 秒　△CPQ ＝ <strong>0</strong> cm²</div>
+      </div>
+    </div>
+
+    <button class="hint-toggle" onclick="toggleHint('h4')">💡 ヒントを見る</button>
+    <div class="hint-box" id="h4">
+      【場合1：0≦χ≦3，Q が AD 上】<br>
+      全体から3つ引く：△CPQ＝36－(①＋②＋③)<br>
+      ①△APQ＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×χ×2χ＝χ²<br>
+      ②△ABP（△PBC）＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－χ)×6＝18－3χ（P が AB 上）<br>
+      ③△QCD（△DQC）＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－2χ)×6＝18－6χ<br>
+      △CPQ＝36－(χ²＋18－3χ＋18－6χ)＝－χ²＋9χ＝14<br>
+      χ²－9χ＋14＝0　→　(χ－2)(χ－7)＝0<br>
+      0≦χ≦3 より　<strong>χ＝2</strong><br><br>
+      【場合2：3≦χ≦6，Q が DC 上】<br>
+      CQ＝AD＋DC－2χ＝12－2χ<br>
+      △CPQ＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×6×(12－2χ)＝36－6χ＝14<br>
+      <strong>χ＝<span class="frac"><span class="fn">11</span><span class="fd">3</span></span></strong>
+    </div>
+    <div id="t4" class="timer-wrap">
+      <div class="timer-ring" id="ring-q4"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
+      <div class="timer-msg">自力で考えましょう。<span class="goal">目標 10分以内</span></div>
+    </div>
+    <div class="cf-result-ok" id="cf-result-ok">🎉 合格！素晴らしい！</div>
+    <div class="cf-result-ng" id="cf-result-ng">😅 おしい！もう一度挑戦！</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">答えを選びなさい。</div>
+    <div class="choices" id="ch-q4">
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">1</span>2秒後のみ</button>
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">2</span><span class="frac"><span class="fn">11</span><span class="fd">3</span></span>秒後のみ</button>
+      <button class="ch cf-choice" data-correct="true"  onclick="cfSelect(this)"><span class="cnum">3</span>2秒後と<span class="frac"><span class="fn">11</span><span class="fd">3</span></span>秒後</button>
+      <button class="ch cf-choice" data-correct="false" onclick="cfSelect(this)"><span class="cnum">4</span>3秒後と4秒後</button>
+    </div>
+    <button class="cf-judge-btn" id="cf-judge-btn" data-qid="q4" onclick="cfJudge()">答えを確認する ✓</button>
+    <div id="q4-res" style="display:none">
+      <div class="point-box">
+        <div class="point-title">解法のまとめ</div>
+        場合1（0≦χ≦3）：－χ²＋9χ＝14 → χ²－9χ＋14＝0<br>
+        →（χ－2）（χ－7）＝0 → <strong>χ＝2秒後</strong><br>
+        場合2（3≦χ≦6）：36－6χ＝14 → <strong>χ＝<span class="frac"><span class="fn">11</span><span class="fd">3</span></span>秒後</strong>
+      </div>
+      <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+        <button class="abc-btn abc-A" id="q4-mA" onclick="setMark('q4m','A')">✅ A<span>わかった</span></button>
+        <button class="abc-btn abc-B" id="q4-mB" onclick="setMark('q4m','B')">📖 B<span>解説でわかった</span></button>
+        <button class="abc-btn abc-C" id="q4-mC" onclick="setMark('q4m','C')">❓ C<span>わからなかった</span></button>
+      </div></div>
+    </div>
+  </div>
+  <div class="connector" id="cn-q4"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+  <div class="card kai-card" id="kai-q4">
+    <div class="clabel kai">段階解説</div>
+    <div id="q4-s0" class="exp-box" style="display:none">
+      <h4>STEP 1　変域を確認する</h4>
+      <p>P（反時計回り・1cm/秒）：A→B方向
+Q（時計回り・2cm/秒）：A→D方向
+
+Q が D に着く：6÷2＝3 秒後
+場合1：0≦χ≦3（Q が AD 上）
+場合2：3≦χ≦6（Q が DC 上）
+
+AP＝χ，AQ＝2χ</p>
+    </div>
+    <div id="q4-s1" class="exp-box blue" style="display:none">
+      <h4>STEP 2　場合1（0≦χ≦3）</h4>
+      <p>△CPQ＝36－(①＋②＋③)
+
+①△APQ＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×χ×2χ＝χ²
+②△PBC＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－χ)×6＝18－3χ
+③△QDC＝<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×(6－2χ)×6＝18－6χ
+
+△CPQ＝36－(χ²＋18－3χ＋18－6χ)
+　　　＝ <strong>－χ²＋9χ</strong>
+
+－χ²＋9χ＝14　→　χ²－9χ＋14＝0
+（χ－2）（χ－7）＝0　→　χ＝2，7
+0≦χ≦3 より　<strong>χ＝2 秒後</strong></p>
+    </div>
+    <div id="q4-s2" class="exp-box" style="display:none">
+      <h4>STEP 3　場合2（3≦χ≦6）</h4>
+      <p>Q は D を過ぎて DC 上にいる。
+CQ ＝ AD＋DC－2χ ＝ 6＋6－2χ ＝ 12－2χ
+
+△CPQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×CP×CQ
+P は AB 上，CP ＝ 6（AB＝6）
+△CPQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×6×(12－2χ) ＝ <strong>36－6χ</strong></p>
+    </div>
+    <div id="q4-s3" class="exp-box amber" style="display:none">
+      <h4>STEP 4　場合2の方程式を解く</h4>
+      <p>36－6χ ＝ 14
+－6χ ＝ －22
+<strong>χ ＝ <span class="frac"><span class="fn">11</span><span class="fd">3</span></span> 秒後</strong>（3≦<span class="frac"><span class="fn">11</span><span class="fd">3</span></span>≦6 ✓）
+
+<strong>答え：χ ＝ 2 秒後 と <span class="frac"><span class="fn">11</span><span class="fd">3</span></span> 秒後</strong></p>
+    </div>
+    <button class="reveal-btn" id="rb-q4" onclick="reveal('q4',4)">STEP 1 を見る ▼</button>
+    <div id="q4-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
+      <button class="abc-btn abc-A" id="q4-kA" onclick="setMark('q4k','A')">✅ A<span>わかった</span></button>
+      <button class="abc-btn abc-B" id="q4-kB" onclick="setMark('q4k','B')">📖 B<span>解説でわかった</span></button>
+      <button class="abc-btn abc-C" id="q4-kC" onclick="setMark('q4k','C')">❓ C<span>わからなかった</span></button>
+    </div></div></div>
+  </div>
+
+  <div class="unit-nav" id="unit-nav" style="display:flex;">
+    <div class="unit-nav-row"><a href="bunshou_index.html" class="unav-btn unav-index">📋 単元表に戻る</a></div>
+    <div class="unit-nav-row">
+      <a href="MQ-6.html" class="unav-btn unav-prev">← MQ-6 へ戻る</a>
+      <a href="MQ-8.html" class="unav-btn unav-next">次へ：様々な問題 →</a>
+    </div>
+  </div>
+</div>
+
+</main>
+<script>
+// ══════ アニメーション ══════
+const animState={};
+function getAnimState(id){if(!animState[id])animState[id]={t:0,running:false,raf:null};return animState[id];}
+
+function drawC0(t){
+  const cv=document.getElementById('c0');if(!cv)return;
+  const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  // 長方形 AB=12(縦) BC=16(横)  表示スケール
+  const ox=50,oy=20,sw=240,sh=180;// BC方向=sw, AB方向=sh
+  const BC=16,AB=12;
+  const scx=sw/BC,scy=sh/AB;
+  // 頂点
+  const B={x:ox,y:oy+sh},C={x:ox+sw,y:oy+sh},D={x:ox+sw,y:oy},A={x:ox,y:oy};
+  // 外枠
+  ctx.strokeStyle='#0d9478';ctx.lineWidth=2;ctx.strokeRect(ox,oy,sw,sh);
+  // 頂点ラベル
+  const lbl=(p,txt,dx,dy)=>{ctx.fillStyle='#1a1814';ctx.font='bold 13px sans-serif';ctx.fillText(txt,p.x+dx,p.y+dy);};
+  lbl(A,'A',-15,-4);lbl(B,'B',-15,4);lbl(C,'C',5,4);lbl(D,'D',5,-4);
+  // 寸法
+  ctx.fillStyle='#58544c';ctx.font='11px sans-serif';
+  ctx.fillText('BC=16cm',ox+sw/2-30,oy+sh+18);
+  ctx.save();ctx.translate(ox-30,oy+sh/2);ctx.rotate(-Math.PI/2);ctx.fillText('AB=12cm',0,0);ctx.restore();
+  // χ制限
+  const tmax=8;const chi=Math.min(t,tmax);
+  // P on BC
+  const Px=ox+chi*2*scx,Py=oy+sh;
+  const PC=BC-chi*2;
+  // Q on CD
+  const Qx=ox+sw,Qy=oy+sh-chi*scy;
+  const CQ=chi;
+  // 三角形PCQ
+  if(chi>0){
+    ctx.beginPath();ctx.moveTo(Px,Py);ctx.lineTo(C.x,C.y);ctx.lineTo(Qx,Qy);ctx.closePath();
+    ctx.fillStyle='rgba(13,148,120,0.18)';ctx.fill();
+    ctx.strokeStyle='#0d9478';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  // 点P
+  ctx.beginPath();ctx.arc(Px,Py,6,0,Math.PI*2);ctx.fillStyle='#d93652';ctx.fill();
+  ctx.fillStyle='#d93652';ctx.font='bold 12px sans-serif';ctx.fillText('P',Px-4,Py+18);
+  // 点Q
+  ctx.beginPath();ctx.arc(Qx,Qy,6,0,Math.PI*2);ctx.fillStyle='#2055b0';ctx.fill();
+  ctx.fillStyle='#2055b0';ctx.font='bold 12px sans-serif';ctx.fillText('Q',Qx+8,Qy+4);
+  // 面積計算
+  const area=chi>0?0.5*PC*CQ:0;
+  const el=document.getElementById('info-c0');
+  if(el)el.innerHTML=`χ ＝ <strong>${chi.toFixed(1)}</strong> 秒　△PCQ ＝ <strong>${area.toFixed(1)}</strong> cm²`;
+}
+
+function drawC1(t){
+  const cv=document.getElementById('c1');if(!cv)return;
+  const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const s=8,sc=26,ox=40,oy=20;
+  const A={x:ox,y:oy},B={x:ox,y:oy+s*sc},C={x:ox+s*sc,y:oy+s*sc},D={x:ox+s*sc,y:oy};
+  ctx.strokeStyle='#0d9478';ctx.lineWidth=2;ctx.strokeRect(ox,oy,s*sc,s*sc);
+  const lbl=(p,txt,dx,dy)=>{ctx.fillStyle='#1a1814';ctx.font='bold 13px sans-serif';ctx.fillText(txt,p.x+dx,p.y+dy);};
+  lbl(A,'A',-15,-4);lbl(B,'B',-15,4);lbl(C,'C',6,4);lbl(D,'D',6,-4);
+  ctx.fillStyle='#58544c';ctx.font='11px sans-serif';ctx.fillText('8cm',ox+s*sc/2-10,oy+s*sc+18);
+  const tmax=4;const chi=Math.min(t,tmax);
+  const Px=ox,Py=oy+s*sc-chi*2*sc;// P on BC（Bから上方向）
+  const Qx=ox+chi*sc,Qy=oy+s*sc;// Q on CD（Cから右...いや Cから左方向）
+  // Q: C出発→D方向
+  const Qx2=ox+s*sc-chi*sc,Qy2=oy;// Q on CD
+  // 実際: P on BC, B=下左, C=下右
+  // P starts B=（ox,oy+s*sc）, moves to C=（ox+s*sc,oy+s*sc）at 2cm/s
+  const Px2=ox+chi*2*sc,Py2=oy+s*sc;
+  // Q starts C=（ox+s*sc,oy+s*sc）, moves to D=（ox+s*sc,oy）at 1cm/s
+  const Px3=Px2,Py3=Py2;
+  const Qx3=ox+s*sc,Qy3=oy+s*sc-chi*sc;
+  // △APQ
+  if(chi>0){
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(Px3,Py3);ctx.lineTo(Qx3,Qy3);ctx.closePath();
+    ctx.fillStyle='rgba(32,85,176,0.15)';ctx.fill();
+    ctx.strokeStyle='#2055b0';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(Px3,Py3,6,0,Math.PI*2);ctx.fillStyle='#d93652';ctx.fill();
+  ctx.fillStyle='#d93652';ctx.font='bold 12px sans-serif';ctx.fillText('P',Px3-4,Py3+18);
+  ctx.beginPath();ctx.arc(Qx3,Qy3,6,0,Math.PI*2);ctx.fillStyle='#2055b0';ctx.fill();
+  ctx.fillStyle='#2055b0';ctx.font='bold 12px sans-serif';ctx.fillText('Q',Qx3+8,Qy3+4);
+  const BP=chi*2,CQ=chi;
+  const PC=s-BP;
+  const area=chi>0?(64-(8*chi+(32-4*chi)+(4*chi-chi*chi))):0;
+  const el=document.getElementById('info-c1');
+  if(el)el.innerHTML=`χ ＝ <strong>${chi.toFixed(1)}</strong> 秒　△APQ ＝ <strong>${Math.max(0,area).toFixed(1)}</strong> cm²`;
+}
+
+function drawC2(t){
+  const cv=document.getElementById('c2');if(!cv)return;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  const AB=6,AD=8,sc=24,ox=45,oy=20;
+  const A={x:ox,y:oy},B={x:ox+AB*sc,y:oy},C={x:ox+AB*sc,y:oy+AD*sc},D={x:ox,y:oy+AD*sc};
+  ctx.strokeStyle='#0d9478';ctx.lineWidth=2;ctx.strokeRect(ox,oy,AB*sc,AD*sc);
+  const lbl=(p,txt,dx,dy)=>{ctx.fillStyle='#1a1814';ctx.font='bold 13px sans-serif';ctx.fillText(txt,p.x+dx,p.y+dy);};
+  lbl(A,'A',-15,-4);lbl(B,'B',5,-4);lbl(C,'C',5,4);lbl(D,'D',-15,4);
+  ctx.fillStyle='#58544c';ctx.font='11px sans-serif';
+  ctx.fillText('AB=6',ox+AB*sc/2-12,oy-6);
+  ctx.save();ctx.translate(ox-28,oy+AD*sc/2);ctx.rotate(-Math.PI/2);ctx.fillText('AD=8',0,0);ctx.restore();
+  const tmax=6;const chi=Math.min(t,tmax);
+  // P: A→B on AB, 1cm/s
+  const Px=ox+chi*sc,Py=oy;
+  // Q: A→D on AD, 1cm/s
+  const Qx=ox,Qy=oy+chi*sc;
+  if(chi>0){
+    ctx.beginPath();ctx.moveTo(Px,Py);
+    // C
+    ctx.lineTo(ox+AB*sc,oy+AD*sc);
+    ctx.lineTo(Qx,Qy);ctx.closePath();
+    ctx.fillStyle='rgba(13,148,120,0.18)';ctx.fill();
+    ctx.strokeStyle='#0d9478';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(Px,Py,6,0,Math.PI*2);ctx.fillStyle='#d93652';ctx.fill();
+  ctx.fillStyle='#d93652';ctx.font='bold 12px sans-serif';ctx.fillText('P',Px+6,Py-6);
+  ctx.beginPath();ctx.arc(Qx,Qy,6,0,Math.PI*2);ctx.fillStyle='#2055b0';ctx.fill();
+  ctx.fillStyle='#2055b0';ctx.font='bold 12px sans-serif';ctx.fillText('Q',Qx-20,Qy+4);
+  const area=chi>0?(-0.5*chi*chi+7*chi):0;
+  const el=document.getElementById('info-c2');
+  if(el)el.innerHTML=`χ ＝ <strong>${chi.toFixed(1)}</strong> 秒　△PCQ ＝ <strong>${Math.max(0,area).toFixed(1)}</strong> cm²`;
+}
+
+function drawC3(t){
+  const cv=document.getElementById('c3');if(!cv)return;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  const AB=24,BC=12,sc=10,ox=40,oy=25;
+  // A=左下, B=右下, C=右上, D=左上
+  const A={x:ox,y:oy+BC*sc},B={x:ox+AB*sc,y:oy+BC*sc},C={x:ox+AB*sc,y:oy},D={x:ox,y:oy};
+  ctx.strokeStyle='#0d9478';ctx.lineWidth=2;ctx.strokeRect(ox,oy,AB*sc,BC*sc);
+  const lbl=(p,txt,dx,dy)=>{ctx.fillStyle='#1a1814';ctx.font='bold 12px sans-serif';ctx.fillText(txt,p.x+dx,p.y+dy);};
+  lbl(A,'A',-14,4);lbl(B,'B',4,4);lbl(C,'C',4,-4);lbl(D,'D',-14,-4);
+  ctx.fillStyle='#58544c';ctx.font='10px sans-serif';
+  ctx.fillText('AB=24cm',ox+AB*sc/2-24,oy+BC*sc+16);
+  ctx.save();ctx.translate(ox-26,oy+BC*sc/2);ctx.rotate(-Math.PI/2);ctx.fillText('BC=12cm',0,0);ctx.restore();
+  const tmax=6;const chi=Math.min(t,tmax);
+  // P: A→B→C at 6cm/s
+  let Px,Py;
+  if(chi<=4){Px=ox+chi*6*sc;Py=oy+BC*sc;}
+  else{Px=ox+AB*sc;Py=oy+BC*sc-(chi-4)*6*sc;}
+  // Q: B→C at 2cm/s
+  const Qx=ox+AB*sc,Qy=oy+BC*sc-chi*2*sc;
+  if(chi>0){
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(Px,Py);ctx.lineTo(Qx,Qy);ctx.closePath();
+    ctx.fillStyle='rgba(160,96,0,0.13)';ctx.fill();
+    ctx.strokeStyle='#a86000';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(Px,Py,6,0,Math.PI*2);ctx.fillStyle='#d93652';ctx.fill();
+  ctx.fillStyle='#d93652';ctx.font='bold 11px sans-serif';ctx.fillText('P',Px+4,Py+14);
+  ctx.beginPath();ctx.arc(Qx,Qy,6,0,Math.PI*2);ctx.fillStyle='#2055b0';ctx.fill();
+  ctx.fillStyle='#2055b0';ctx.font='bold 11px sans-serif';ctx.fillText('Q',Qx+6,Qy+4);
+  let area=0;
+  if(chi<=4)area=6*chi*chi;
+  else area=-48*chi+288;
+  const el=document.getElementById('info-c3');
+  if(el)el.innerHTML=`χ ＝ <strong>${chi.toFixed(1)}</strong> 秒　△APQ ＝ <strong>${Math.max(0,area).toFixed(1)}</strong> cm²`;
+}
+
+function drawC4(t){
+  const cv=document.getElementById('c4');if(!cv)return;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
+  const s=6,sc=32,ox=45,oy=25;
+  // A=左上, B=左下, C=右下, D=右上（時計回り）
+  const A={x:ox,y:oy},B={x:ox,y:oy+s*sc},C={x:ox+s*sc,y:oy+s*sc},D={x:ox+s*sc,y:oy};
+  ctx.strokeStyle='#0d9478';ctx.lineWidth=2;ctx.strokeRect(ox,oy,s*sc,s*sc);
+  const lbl=(p,txt,dx,dy)=>{ctx.fillStyle='#1a1814';ctx.font='bold 13px sans-serif';ctx.fillText(txt,p.x+dx,p.y+dy);};
+  lbl(A,'A',-15,-4);lbl(B,'B',-15,4);lbl(C,'C',5,4);lbl(D,'D',5,-4);
+  ctx.fillStyle='#58544c';ctx.font='11px sans-serif';ctx.fillText('1辺6cm',ox+s*sc/2-18,oy+s*sc+18);
+  const tmax=6;const chi=Math.min(t,tmax);
+  // P: 反時計回り 1cm/s A→B（下方向）
+  const Px=ox,Py=oy+chi*sc;
+  // Q: 時計回り 2cm/s A→D（右方向）
+  let Qx,Qy;
+  if(chi<=3){Qx=ox+chi*2*sc;Qy=oy;}// AD上
+  else{Qx=ox+s*sc;Qy=oy+(chi-3)*2*sc;}// DC上
+  if(chi>0){
+    ctx.beginPath();ctx.moveTo(Px,Py);ctx.lineTo(C.x,C.y);ctx.lineTo(Qx,Qy);ctx.closePath();
+    ctx.fillStyle='rgba(169,64,0,0.13)';ctx.fill();
+    ctx.strokeStyle='#a86000';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(Px,Py,6,0,Math.PI*2);ctx.fillStyle='#d93652';ctx.fill();
+  ctx.fillStyle='#d93652';ctx.font='bold 12px sans-serif';ctx.fillText('P',Px-18,Py+4);
+  ctx.beginPath();ctx.arc(Qx,Qy,6,0,Math.PI*2);ctx.fillStyle='#2055b0';ctx.fill();
+  ctx.fillStyle='#2055b0';ctx.font='bold 12px sans-serif';ctx.fillText('Q',Qx+6,Qy-8);
+  let area=0;
+  if(chi<=3)area=-chi*chi+9*chi;
+  else area=36-6*chi;
+  const el=document.getElementById('info-c4');
+  if(el)el.innerHTML=`χ ＝ <strong>${chi.toFixed(1)}</strong> 秒　△CPQ ＝ <strong>${Math.max(0,area).toFixed(1)}</strong> cm²`;
+}
+
+const drawFns={c0:drawC0,c1:drawC1,c2:drawC2,c3:drawC3,c4:drawC4};
+const tmaxMap={c0:8,c1:4,c2:6,c3:6,c4:6};
+// 初期描画
+Object.keys(drawFns).forEach(id=>{try{drawFns[id](0);}catch(e){}});
+
+function animPlay(id){
+  const st=getAnimState(id);if(st.running)return;
+  st.running=true;
+  const tmax=tmaxMap[id]||8;
+  const fps=30,spf=tmax/fps/2;// 実時間をゆっくり（2倍スロー）
+  function step(){
+    if(!st.running)return;
+    st.t+=spf;
+    if(st.t>tmax)st.t=0;
+    try{drawFns[id](st.t);}catch(e){}
+    st.raf=requestAnimationFrame(step);
+  }
+  step();
+}
+function animStop(id){
+  const st=getAnimState(id);
+  st.running=false;
+  if(st.raf)cancelAnimationFrame(st.raf);
+}
+
+// ══════ タブ・問題共通 ══════
+const TMAX=300;const answered={};const stepRev={q0:0,q1:0,q2:0,q3:0,q4:0};const timers={};let pracDone=0;
+function switchTab(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  ['ex','pr','cf'].forEach(t=>{document.getElementById('tab-'+t).className='tab-btn';});
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active-'+tab);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(tab==='pr'&&!answered.q1)startTimer('q1');
+  if(tab==='cf'&&!answered.q4)startTimer('q4');
+}
+function startTimer(qid){
+  if(timers[qid]||answered[qid])return;
+  const start=Date.now();const n=qid.slice(1);tick(0);
+  timers[qid]=setInterval(()=>tick(Math.floor((Date.now()-start)/1000)),1000);
+  function tick(sec){
+    const ring=document.getElementById('ring-'+qid);if(!ring)return;
+    const fg=ring.querySelector('.tfg');const txt=ring.querySelector('.tcenter');
+    const tw=document.getElementById('t'+n);const msg=tw?tw.querySelector('.timer-msg'):null;
+    const pct=Math.min(sec/TMAX,1);
+    fg.style.strokeDashoffset=126*pct;fg.className='tfg'+(pct>.8?' warn':'');
+    const m=Math.floor(sec/60),s=sec%60;txt.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(msg){
+      if(sec<60)msg.innerHTML='自力で考えましょう。<span class="goal">目標内</span>';
+      else if(sec<300)msg.innerHTML='じっくり考えています…<span class="goal">まだ大丈夫！</span>';
+      else msg.innerHTML='解説を見て確認しましょう。';
+    }
+  }
+}
+function stopTimer(qid){clearInterval(timers[qid]);timers[qid]=null;}
+function ans(qid,idx,correct){
+  if(answered[qid])return;answered[qid]=true;stopTimer(qid);
+  var isOk=(idx===correct);var n=parseInt(qid.slice(1));
+  var tw=document.getElementById('t'+n);if(tw)tw.style.display='none';
+  document.querySelectorAll('#ch-'+qid+' .ch').forEach(function(b,i){
+    b.disabled=true;
+    if(i===correct){b.className='ch ok';b.querySelector('.cnum').style.cssText='background:var(--teal);color:#fff';}
+    else if(i===idx&&!isOk){b.className='ch ng';b.querySelector('.cnum').style.cssText='background:var(--pink);color:#fff';}
+  });
+  var fbOk=document.getElementById('fb-ok-'+qid);var fbNg=document.getElementById('fb-ng-'+qid);
+  if(isOk){if(fbOk)fbOk.style.display='flex';_launchConfetti();}else{if(fbNg)fbNg.style.display='flex';}
+  var res=document.getElementById(qid+'-res');if(res)res.style.display='block';
+  var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='flex';
+  var kc=document.getElementById('kai-'+qid);
+  if(kc){kc.style.display='block';setTimeout(function(){kc.scrollIntoView({behavior:'smooth',block:'start'});},120);}
+  if(['q1','q2','q3'].includes(qid)){
+    pracDone++;
+    document.getElementById('pb-pr').style.width=(pracDone/3*100)+'%';
+    document.getElementById('pb-pr-txt').textContent=pracDone+' / 3 完了';
+    if(pracDone===3)document.getElementById('done-pr').style.display='flex';
+    var nextMap={q1:'q2',q2:'q3'};
+    if(nextMap[qid]&&!answered[nextMap[qid]])setTimeout(()=>startTimer(nextMap[qid]),300);
+  }
+}
+function reveal(qid,total){
+  const r=stepRev[qid];const el=document.getElementById(qid+'-s'+r);
+  if(el){el.style.display='block';stepRev[qid]++;setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+  const btn=document.getElementById('rb-'+qid);
+  if(stepRev[qid]>=total){btn.style.display='none';const fin=document.getElementById(qid+'-fin');if(fin){fin.style.display='block';setTimeout(()=>fin.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}}
+  else{btn.textContent='STEP '+stepRev[qid]+' を見る ▼';}
+}
+function toggleHint(id){const b=document.getElementById(id);b.style.display=b.style.display==='block'?'none':'block';}
+function setMark(prefix,m){
+  const base=prefix.slice(0,-1);const kind=prefix.slice(-1);
+  ['A','B','C'].forEach(x=>{const el=document.getElementById(base+'-'+kind+x);if(el)el.classList.toggle('on',x===m);});
+}
+function resetQ(qid){
+  delete answered[qid];stopTimer(qid);delete timers[qid];
+  var n=parseInt(qid.slice(1));
+  if(['q1','q2','q3'].includes(qid)){
+    if(pracDone>0)pracDone--;
+    document.getElementById('pb-pr').style.width=(pracDone/3*100)+'%';
+    document.getElementById('pb-pr-txt').textContent=pracDone+' / 3 完了';
+    document.getElementById('done-pr').style.display='none';
+  }
+  ['fb-ok-','fb-ng-'].forEach(function(p){var el=document.getElementById(p+qid);if(el)el.style.display='none';});
+  var res=document.getElementById(qid+'-res');if(res)res.style.display='none';
+  var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='none';
+  var kc=document.getElementById('kai-'+qid);if(kc)kc.style.display='none';
+  var tw=document.getElementById('t'+n);if(tw)tw.style.display='flex';
+  document.querySelectorAll('#ch-'+qid+' .ch').forEach(function(b){b.disabled=false;b.className='ch';var c=b.querySelector('.cnum');if(c)c.style.cssText='';});
+  document.querySelectorAll('[id^="'+qid+'-s"]').forEach(function(el){el.style.display='none';});
+  stepRev[qid]=0;
+  var rb=document.getElementById('rb-'+qid);if(rb){rb.style.display='';rb.textContent='STEP 1 を見る ▼';}
+  var fin=document.getElementById(qid+'-fin');if(fin)fin.style.display='none';
+  startTimer(qid);
+}
+var cfSelected=null,cfAnswered=false,cfCanvas=null,cfCtx=null,cfPts=[],cfRunning=false;
+function cfSelect(btn){
+  if(cfAnswered)return;
+  document.querySelectorAll('.cf-choice').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');cfSelected=btn;
+  document.getElementById('cf-judge-btn').classList.add('active');
+}
+function cfJudge(){
+  if(!cfSelected||cfAnswered)return;cfAnswered=true;
+  var isOk=cfSelected.getAttribute('data-correct')==='true';
+  document.querySelectorAll('.cf-choice').forEach(function(b){
+    b.disabled=true;
+    if(b.getAttribute('data-correct')==='true'){b.className='ch ok cf-choice';b.querySelector('.cnum').style.cssText='background:var(--teal);color:#fff';}
+    else if(b===cfSelected&&!isOk){b.className='ch ng cf-choice';b.querySelector('.cnum').style.cssText='background:var(--pink);color:#fff';}
+  });
+  document.getElementById('cf-judge-btn').style.display='none';
+  if(isOk){
+    document.getElementById('cf-result-ok').style.display='block';
+    _launchConfetti();startCfConfetti();
+    var qid=document.getElementById('cf-judge-btn').getAttribute('data-qid');
+    if(qid){setTimeout(function(){
+      document.getElementById(qid+'-res').style.display='block';
+      var cn=document.getElementById('cn-'+qid);if(cn)cn.style.display='flex';
+      var kc=document.getElementById('kai-'+qid);if(kc)kc.style.display='block';
+      document.getElementById('pb-cf').style.width='100%';
+      document.getElementById('pb-cf-txt').textContent='1 / 1 完了';
+      document.getElementById('done-cf').style.display='flex';
+      var un=document.getElementById('unit-nav');if(un)un.style.display='flex';
+    },800);}
+  }else{
+    document.getElementById('cf-result-ng').style.display='block';
+    setTimeout(function(){
+      document.getElementById('cf-result-ng').style.display='none';cfAnswered=false;cfSelected=null;
+      document.querySelectorAll('.cf-choice').forEach(function(b){b.disabled=false;b.classList.remove('selected','ok','ng');b.querySelector('.cnum').style.cssText='';});
+      document.getElementById('cf-judge-btn').classList.remove('active');document.getElementById('cf-judge-btn').style.display='';
+    },2000);
+  }
+}
+function startCfConfetti(){
+  cfCanvas=document.getElementById('confetti-canvas');
+  if(!cfCanvas){cfCanvas=document.createElement('canvas');cfCanvas.id='confetti-canvas';cfCanvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';document.body.appendChild(cfCanvas);}
+  cfCtx=cfCanvas.getContext('2d');cfCanvas.width=window.innerWidth;cfCanvas.height=window.innerHeight;
+  cfPts=[];for(var i=0;i<200;i++)cfPts.push({x:Math.random()*cfCanvas.width,y:Math.random()*cfCanvas.height-cfCanvas.height,s:Math.random()*10+4,c:'hsl('+Math.floor(Math.random()*360)+',80%,60%)',sp:Math.random()*4+2,r:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.2});
+  cfRunning=true;cfUpdate();setTimeout(function(){cfRunning=false;if(cfCtx)cfCtx.clearRect(0,0,cfCanvas.width,cfCanvas.height);},4000);
+}
+function cfUpdate(){if(!cfRunning)return;cfCtx.clearRect(0,0,cfCanvas.width,cfCanvas.height);cfPts.forEach(function(p){p.y+=p.sp;p.r+=p.rv;cfCtx.save();cfCtx.translate(p.x,p.y);cfCtx.rotate(p.r);cfCtx.fillStyle=p.c;cfCtx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cfCtx.restore();if(p.y>cfCanvas.height)p.y=-20;});requestAnimationFrame(cfUpdate);}
+function _launchConfetti(){
+  var cv=document.getElementById('_gamba_cf');
+  if(!cv){cv=document.createElement('canvas');cv.id='_gamba_cf';cv.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';document.body.appendChild(cv);}
+  var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;
+  var pts=[],run=true;
+  for(var i=0;i<200;i++)pts.push({x:Math.random()*cv.width,y:-Math.random()*cv.height*0.5,s:Math.random()*8+4,c:'hsl('+Math.floor(Math.random()*360)+',80%,60%)',sp:Math.random()*4+2,r:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.15});
+  (function step(){if(!run)return;requestAnimationFrame(step);ctx.clearRect(0,0,cv.width,cv.height);pts.forEach(function(p){p.y+=p.sp;p.r+=p.rv;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});})();
+  setTimeout(function(){run=false;ctx.clearRect(0,0,cv.width,cv.height);},3500);
+}
+startTimer('q0');
+</script>
+</body>
+</html>
