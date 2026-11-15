@@ -300,7 +300,7 @@ circle{fill:none;stroke-width:3;stroke-linecap:round;}
   <div class="card" id="q1-card">
     <div class="clabel pr">演習 第1問</div>
     <div class="q-text">
-      <strong>縦が横より8cm長い</strong>長方形の厚紙がある。この長方形の4すみから<strong>一辺の長さが4cmの正方形</strong>を切り取り，直方体の器をつくる。<strong>容積が768cm³</strong>となるとき，もとの長方形の厚紙の<strong>縦の長さ</strong>は何cmか。
+      <strong>縦が横より8cm長い</strong>長方形の厚紙がある。この長方形の4すみから<strong>一辺の長さが4cmの正方形</strong>を切り取り，直方体の器をつくる。<strong>容積が512cm³</strong>となるとき，もとの長方形の厚紙の<strong>縦の長さ</strong>は何cmか。
     </div>
     <div class="why-box">
       <div class="why-title">💡 例題との違いに注意</div>
@@ -320,13 +320,13 @@ circle{fill:none;stroke-width:3;stroke-linecap:round;}
       </div>
     </div>
     <div style="background:var(--sf2);border-radius:8px;padding:.6rem 1rem;font-size:13px;color:var(--text2);margin-bottom:.8rem;">
-      体積：<strong>χ×（χ－8）× 4 ＝ 768</strong>　→　÷4　→　<strong>χ（χ－8）＝ 192</strong>
+      体積：<strong>χ×（χ－8）× 4 ＝ 512</strong>　→　÷4　→　<strong>χ（χ－8）＝ 128</strong>
     </div>
     <button class="hint-toggle" onclick="toggleHint('h1')">💡 ヒントを見る</button>
     <div class="hint-box" id="h1">
-      χ（χ－8）＝ 192<br>
-      χ²－8χ－192 ＝ 0<br>
-      （χ－16）（χ＋12）＝ 0　→　χ＞0 より　<strong>χ＝16</strong><br>
+      χ（χ－8）＝ 128<br>
+      χ²－8χ－128 ＝ 0<br>
+      （χ－16）（χ＋8）＝ 0　→　χ＞0 より　<strong>χ＝16</strong><br>
       縦 ＝ χ＋8 ＝ <strong>24cm</strong>
     </div>
     <div id="t1" class="timer-wrap">
@@ -341,12 +341,12 @@ circle{fill:none;stroke-width:3;stroke-linecap:round;}
       <button class="ch" onclick="ans('q1',3,2)"><span class="cnum">4</span>28 cm</button>
     </div>
     <div class="fb-ok" id="fb-ok-q1"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ＝16 → 縦＝24cm です ✨</span></span></div>
-    <div class="fb-ng" id="fb-ng-q1"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">χ（χ－8）＝192 を整理して因数分解しよう</span></span><button class="reset-btn" onclick="resetQ('q1')">🔄 もう一度</button></div>
+    <div class="fb-ng" id="fb-ng-q1"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">χ（χ－8）＝128 を整理して因数分解しよう</span></span><button class="reset-btn" onclick="resetQ('q1')">🔄 もう一度</button></div>
     <div id="q1-res" style="display:none">
       <div class="point-box">
         <div class="point-title">解法のまとめ</div>
-        χ（χ－8）×4＝768　→　χ²－8χ－192＝0<br>
-        （χ－16）（χ＋12）＝0　→　χ＝16<br>
+        χ（χ－8）×4＝512　→　χ²－8χ－128＝0<br>
+        （χ－16）（χ＋8）＝0　→　χ＝16<br>
         縦 ＝ χ＋8 ＝ <strong>24cm</strong>
       </div>
       <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
@@ -368,18 +368,18 @@ circle{fill:none;stroke-width:3;stroke-linecap:round;}
 底面の横 ＝ χ－4－4 ＝ χ－8
 高さ ＝ 4cm
 
-<strong>χ×（χ－8）× 4 ＝ 768</strong></p>
+<strong>χ×（χ－8）× 4 ＝ 512</strong></p>
     </div>
     <div id="q1-s1" class="exp-box blue" style="display:none">
       <h4>STEP 2　両辺を4で割って整理する</h4>
-      <p>χ（χ－8）＝ 192
-χ²－8χ ＝ 192
-<strong>χ²－8χ－192 ＝ 0</strong></p>
+      <p>χ（χ－8）＝ 128
+χ²－8χ ＝ 128
+<strong>χ²－8χ－128 ＝ 0</strong></p>
     </div>
     <div id="q1-s2" class="exp-box" style="display:none">
       <h4>STEP 3　因数分解して解く</h4>
-      <p>（χ－16）（χ＋12）＝ 0
-χ ＝ 16，－12
+      <p>（χ－16）（χ＋8）＝ 0
+χ ＝ 16，－8
 
 χ＞0 より　<strong>χ ＝ 16</strong></p>
     </div>
@@ -387,7 +387,7 @@ circle{fill:none;stroke-width:3;stroke-linecap:round;}
       <h4>STEP 4　縦の長さと確かめ</h4>
       <p>縦 ＝ χ＋8 ＝ 16＋8 ＝ <strong>24cm</strong>，横 ＝ 16cm
 底面：16×（16－8）＝ 16×8 ＝ 128
-体積：128×6 ＝ 768cm³　✓
+体積：128×4 ＝ 512cm³　✓
 
 <strong>答え：縦の長さ ＝ 24cm</strong></p>
     </div>

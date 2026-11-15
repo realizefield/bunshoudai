@@ -437,10 +437,9 @@ CQ ＝ χ（Q の移動距離）
     <div class="hint-box" id="h2">
       －<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ ＝ 12　両辺×（－2）<br>
       χ²－14χ＋24 ＝ 0<br>
-      （χ－6）（χ－？）… いや（χ－12）（χ－2）＝0<br>
-      →　χ＝2，12<br>
+      （χ－2）（χ－12）＝0　→　χ＝2，12<br>
       P が B に着く：6秒後　→　<strong>0≦χ≦6</strong><br>
-      よって　<strong>χ＝2 秒後 と 6秒後（→（χ－6）（χ－2）＝0 なので χ＝6 も確認）</strong>
+      χ＝12 は範囲外なので不適。よって　<strong>χ＝2 秒後</strong>
     </div>
     <div id="t2" class="timer-wrap">
       <div class="timer-ring" id="ring-q2"><svg viewBox="0 0 44 44"><circle class="tbg" cx="22" cy="22" r="20"/><circle class="tfg" cx="22" cy="22" r="20"/></svg><div class="tcenter">0:00</div></div>
@@ -448,19 +447,19 @@ CQ ＝ χ（Q の移動距離）
     </div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">答えを選びなさい。</div>
     <div class="choices" id="ch-q2">
-      <button class="ch" onclick="ans('q2',0,3)"><span class="cnum">1</span>2 秒後のみ</button>
-      <button class="ch" onclick="ans('q2',1,3)"><span class="cnum">2</span>4 秒後のみ</button>
-      <button class="ch" onclick="ans('q2',2,3)"><span class="cnum">3</span>6 秒後のみ</button>
-      <button class="ch" onclick="ans('q2',3,3)"><span class="cnum">4</span>2秒後と6秒後</button>
+      <button class="ch" onclick="ans('q2',0,0)"><span class="cnum">1</span>2 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',1,0)"><span class="cnum">2</span>4 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',2,0)"><span class="cnum">3</span>6 秒後のみ</button>
+      <button class="ch" onclick="ans('q2',3,0)"><span class="cnum">4</span>2秒後と12秒後</button>
     </div>
-    <div class="fb-ok" id="fb-ok-q2"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－14χ＋24＝0 → χ＝2，6 の両方です ✨</span></span></div>
+    <div class="fb-ok" id="fb-ok-q2"><span class="fb-icon">🎉</span><span class="fb-text">正解！<span class="fb-sub">χ²－14χ＋24＝0 → χ＝2，12。12は範囲外なので 2秒後だけです ✨</span></span></div>
     <div class="fb-ng" id="fb-ng-q2"><span class="fb-icon">😢</span><span class="fb-text">おしい！<span class="fb-sub">両辺に×(－2) して整理しよう</span></span><button class="reset-btn" onclick="resetQ('q2')">🔄 もう一度</button></div>
     <div id="q2-res" style="display:none">
       <div class="point-box">
         <div class="point-title">解法のまとめ</div>
         －<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>χ²＋7χ＝12　×(－2)　→　χ²－14χ＋24＝0<br>
         （χ－2）（χ－12）＝0　→　χ＝2，12<br>
-        0≦χ≦6 より　<strong>2秒後 と 6秒後</strong>
+        0≦χ≦6 より　χ＝12 は不適　→　<strong>2秒後</strong>
       </div>
       <div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
         <button class="abc-btn abc-A" id="q2-mA" onclick="setMark('q2m','A')">✅ A<span>わかった</span></button>
@@ -504,10 +503,9 @@ PB ＝ 6－χ，QD ＝ 8－χ
 よって　<strong>0≦χ≦6</strong>
 
 χ＝12 は不適
-<strong>答え：2 秒後 と 6 秒後</strong>
+<strong>答え：2 秒後</strong>
 
-【確かめ】χ＝2：－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×4＋14＝12　✓
-　　　　χ＝6：－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×36＋42＝12　✓</p>
+【確かめ】χ＝2：－<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>×4＋14 ＝ －2＋14 ＝ 12　✓</p>
     </div>
     <button class="reveal-btn" id="rb-q2" onclick="reveal('q2',4)">STEP 1 を見る ▼</button>
     <div id="q2-fin" style="display:none"><div class="abc-wrap"><div class="abc-lbl">理解度をマーク</div><div class="abc-row">
@@ -524,7 +522,7 @@ PB ＝ 6－χ，QD ＝ 8－χ
   <div class="card" id="q3-card">
     <div class="clabel pr">演習 第3問　★変域で場合分け</div>
     <div class="q-text">
-      たて <strong>12cm</strong>，横 <strong>24cm</strong> の長方形がある。点 P は，A を出発して辺 AB，BC 上を <strong>毎秒6cm</strong> の速さで A→B→C の順に C まで動く。点 Q は，P が A を出発したのと同時に B を出発し，辺 BC 上を <strong>毎秒2cm</strong> の速さで C まで動く。<strong>△APQ の面積が長方形 ABCD の面積の <span class="frac"><span class="fn">1</span><span class="fd">6</span></span></strong> になるのは，P，Q が出発してから何秒後か。
+      <strong>AB＝24cm，BC＝12cm</strong> の長方形 ABCD がある。点 P は，A を出発して辺 AB，BC 上を <strong>毎秒6cm</strong> の速さで A→B→C の順に C まで動く。点 Q は，P が A を出発したのと同時に B を出発し，辺 BC 上を <strong>毎秒2cm</strong> の速さで C まで動く。<strong>△APQ の面積が長方形 ABCD の面積の <span class="frac"><span class="fn">1</span><span class="fd">6</span></span></strong> になるのは，P，Q が出発してから何秒後か。
     </div>
     <div class="why-box">
       <div class="why-title">💡 Pの動く辺によって場合分けが必要！</div>
@@ -598,13 +596,11 @@ P が C に着く：(12＋24)÷6 ＝ 6 秒後
     </div>
     <div id="q3-s1" class="exp-box blue" style="display:none">
       <h4>STEP 2　場合1（0≦χ≦4）の面積</h4>
-      <p>AP＝6χ（高さ），QB＝2χ（底辺の一部）
-△APQ の底辺＝QB＝2χ，高さ＝AB＝... 
+      <p>P は A から 6χ 進むので　AP＝6χ
+Q は B から 2χ 進むので　BQ＝2χ
+△APQ は，底辺を AP，高さを BQ と見ます。
 
-正しくは：AP は辺 AB 上，P は B から 6χ 進んでいる
-AP の長さ＝6χ（B からの距離）
-
-△APQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × AP × QB ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × 6χ × 2χ ＝ <strong>6χ²</strong>
+△APQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × AP × BQ ＝ <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> × 6χ × 2χ ＝ <strong>6χ²</strong>
 
 6χ² ＝ 48　→　χ² ＝ 8
 <strong>χ ＝ 2√2 秒後</strong>（0≦2√2≦4 ✓）</p>
